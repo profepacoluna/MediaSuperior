@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador PAEC – Prof. Francisco De Jesús Luna Benítez</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:       #C9922A;
+    --gold-light: #F0C97A;
+    --gold-pale:  #FDF3DC;
+    --teal:       #1A7A72;
+    --teal-light: #27A99C;
+    --teal-pale:  #E4F6F4;
+    --bg:         #FAFAF7;
+    --white:      #FFFFFF;
+    --gray1:      #F2F0EB;
+    --gray2:      #DDD9D0;
+    --gray3:      #9E9B94;
+    --text:       #2A2820;
+    --text2:      #5A5650;
+    --correct:    #1E8A4A;
+    --correct-bg: #E8F7EE;
+    --wrong:      #C0392B;
+    --wrong-bg:   #FDECEA;
+    --radius:     14px;
+    --shadow:     0 4px 24px rgba(42,40,32,.10);
+    --shadow-lg:  0 8px 40px rgba(42,40,32,.15);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ──────────────────────────── HEADER ──────────────────────────── */
+  .site-header {
+    background: linear-gradient(135deg, #1A3A38 0%, #1A7A72 55%, #C9922A 100%);
+    padding: 28px 20px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .site-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .header-badge {
+    display: inline-block;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.3);
+    color: var(--gold-light);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  .site-header h1 {
+    font-family: 'Lora', serif;
+    color: #fff;
+    font-size: clamp(1.3rem, 4vw, 2rem);
+    font-weight: 700;
+    line-height: 1.25;
+    text-shadow: 0 2px 12px rgba(0,0,0,.25);
+    margin-bottom: 6px;
+  }
+  .site-header h1 span { color: var(--gold-light); }
+  .site-header .author {
+    color: rgba(255,255,255,.85);
+    font-size: clamp(.8rem, 2vw, .95rem);
+    font-weight: 600;
+    letter-spacing: .04em;
+  }
+  .header-deco {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .header-deco span { width: 40px; height: 2px; background: rgba(255,255,255,.3); border-radius: 2px; }
+  .header-deco i { color: var(--gold-light); font-size: 1rem; }
+
+  /* ──────────────────────────── TABS ──────────────────────────── */
+  .tabs-bar {
+    display: flex;
+    background: #1A3A38;
+    border-bottom: 3px solid var(--gold);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 13px 10px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,.6);
+    font-family: 'Nunito', sans-serif;
+    font-size: .88rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: .03em;
+    transition: all .25s;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+  }
+  .tab-btn.active {
+    color: var(--gold-light);
+    border-bottom-color: var(--gold-light);
+    background: rgba(255,255,255,.06);
+  }
+  .tab-btn:hover:not(.active) { color: rgba(255,255,255,.85); }
+
+  /* ──────────────────────────── PANELS ──────────────────────────── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ──────────────────────── EXAM PANEL ──────────────────────────── */
+  .exam-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+
+  /* Pantalla de inicio */
+  #screen-start {
+    animation: fadeUp .5s ease both;
+  }
+  .start-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    padding: 40px 36px;
+    text-align: center;
+    border-top: 5px solid var(--gold);
+  }
+  .start-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 1.8rem;
+  }
+  .start-card h2 {
+    font-family: 'Lora', serif;
+    font-size: 1.5rem;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  .start-card p {
+    color: var(--text2);
+    font-size: .95rem;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+  .info-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .pill {
+    background: var(--gray1);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .pill .dot.teal { background: var(--teal); }
+  .pill .dot.gold { background: var(--gold); }
+
+  .input-group {
+    margin-bottom: 24px;
+    text-align: left;
+  }
+  .input-group label {
+    display: block;
+    font-weight: 700;
+    font-size: .9rem;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .input-group input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 2px solid var(--gray2);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    color: var(--text);
+    background: var(--gray1);
+    transition: border-color .2s, box-shadow .2s;
+    outline: none;
+  }
+  .input-group input:focus {
+    border-color: var(--teal);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(26,122,114,.15);
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 36px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(26,122,114,.35);
+    transition: transform .15s, box-shadow .15s;
+    width: 100%;
+    justify-content: center;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(26,122,114,.45); }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* Progress bar */
+  .progress-wrap {
+    margin-bottom: 20px;
+    animation: fadeUp .4s ease both;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .q-counter {
+    font-size: .82rem;
+    font-weight: 800;
+    color: var(--teal);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .q-score {
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--text2);
+  }
+  .progress-bar {
+    background: var(--gray2);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--gold));
+    border-radius: 10px;
+    transition: width .4s cubic-bezier(.4,0,.2,1);
+  }
+  .format-badge {
+    display: inline-block;
+    background: var(--gold-pale);
+    color: var(--gold);
+    border: 1px solid var(--gold-light);
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 28px 24px;
+    margin-bottom: 16px;
+    border-left: 5px solid var(--teal);
+    animation: fadeUp .4s ease both;
+  }
+  .question-text {
+    font-size: clamp(.95rem, 2.2vw, 1.08rem);
+    font-weight: 700;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-line;
+  }
+
+  /* Options */
+  .options-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .option-item button {
+    width: 100%;
+    background: var(--gray1);
+    border: 2px solid var(--gray2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    text-align: left;
+    font-family: 'Nunito', sans-serif;
+    font-size: .93rem;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.5;
+  }
+  .option-item button:hover:not(:disabled) {
+    background: var(--teal-pale);
+    border-color: var(--teal-light);
+    transform: translateX(3px);
+  }
+  .option-label {
+    min-width: 28px; height: 28px;
+    background: var(--gray2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem;
+    font-weight: 900;
+    color: var(--text2);
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all .2s;
+  }
+  .option-item button:hover:not(:disabled) .option-label {
+    background: var(--teal);
+    color: #fff;
+  }
+  /* Selected */
+  .option-item.selected button {
+    border-color: var(--teal);
+    background: var(--teal-pale);
+  }
+  .option-item.selected .option-label {
+    background: var(--teal);
+    color: #fff;
+  }
+  /* Correct */
+  .option-item.correct button {
+    border-color: var(--correct);
+    background: var(--correct-bg);
+  }
+  .option-item.correct .option-label {
+    background: var(--correct);
+    color: #fff;
+  }
+  /* Wrong */
+  .option-item.wrong button {
+    border-color: var(--wrong);
+    background: var(--wrong-bg);
+  }
+  .option-item.wrong .option-label {
+    background: var(--wrong);
+    color: #fff;
+  }
+  /* Disabled */
+  .option-item button:disabled { cursor: default; transform: none; }
+
+  /* Feedback box */
+  .feedback-box {
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+    font-size: .9rem;
+    line-height: 1.6;
+    display: none;
+    animation: fadeUp .35s ease both;
+  }
+  .feedback-box.show { display: flex; gap: 12px; }
+  .feedback-box.correct-fb {
+    background: var(--correct-bg);
+    border-left: 4px solid var(--correct);
+  }
+  .feedback-box.wrong-fb {
+    background: var(--wrong-bg);
+    border-left: 4px solid var(--wrong);
+  }
+  .fb-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+  .fb-content strong { display: block; font-size: .95rem; margin-bottom: 4px; }
+  .fb-content.correct-txt strong { color: var(--correct); }
+  .fb-content.wrong-txt strong { color: var(--wrong); }
+
+  .btn-next {
+    display: none;
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold), #E8A030);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 28px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(201,146,42,.35);
+    transition: transform .15s, box-shadow .15s;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-next.show { display: flex; animation: fadeUp .3s ease both; }
+  .btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(201,146,42,.45); }
+
+  /* ────────────────────── RESULTS SCREEN ────────────────────── */
+  #screen-results { animation: fadeUp .5s ease both; }
+  .results-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    padding: 36px 30px;
+    text-align: center;
+    border-top: 5px solid var(--gold);
+  }
+  .results-emoji { font-size: 3.5rem; margin-bottom: 12px; }
+  .results-card h2 {
+    font-family: 'Lora', serif;
+    font-size: 1.5rem;
+    color: var(--teal);
+    margin-bottom: 4px;
+  }
+  .student-name-result {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--gold);
+    margin-bottom: 24px;
+  }
+  .score-ring-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .score-ring {
+    position: relative;
+    width: 130px; height: 130px;
+  }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring circle {
+    fill: none;
+    stroke-width: 10;
+    stroke-linecap: round;
+  }
+  .score-ring .bg-ring { stroke: var(--gray2); }
+  .score-ring .fg-ring {
+    stroke: var(--teal);
+    stroke-dasharray: 339.292;
+    stroke-dashoffset: 339.292;
+    transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);
+  }
+  .score-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-pct {
+    font-family: 'Lora', serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--teal);
+    line-height: 1;
+  }
+  .score-label { font-size: .7rem; font-weight: 700; color: var(--text2); margin-top: 2px; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--gray1);
+    border-radius: 12px;
+    padding: 16px 12px;
+  }
+  .stat-card .val {
+    font-family: 'Lora', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-card .val.green { color: var(--correct); }
+  .stat-card .val.red { color: var(--wrong); }
+  .stat-card .lbl { font-size: .8rem; font-weight: 700; color: var(--text2); }
+
+  .motivator {
+    background: linear-gradient(135deg, var(--teal-pale), var(--gold-pale));
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: .93rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--teal);
+  }
+
+  .btn-retry {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--gray1);
+    border: 2px solid var(--gray2);
+    border-radius: 50px;
+    padding: 13px 30px;
+    font-family: 'Nunito', sans-serif;
+    font-size: .95rem;
+    font-weight: 800;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-retry:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-pale); }
+
+  /* ────────────────────── GUIDE PANEL ────────────────────── */
+  .guide-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 16px 48px;
+  }
+  .guide-header {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px 26px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-left: 5px solid var(--teal);
+  }
+  .guide-header-icon {
+    width: 50px; height: 50px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  .guide-header h3 {
+    font-family: 'Lora', serif;
+    font-size: 1.2rem;
+    color: var(--teal);
+    margin-bottom: 3px;
+  }
+  .guide-header p { font-size: .83rem; color: var(--text2); }
+  .guide-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .btn-open-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--gold), #E8A030);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 11px 22px;
+    font-family: 'Nunito', sans-serif;
+    font-size: .9rem;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 3px 14px rgba(201,146,42,.3);
+    transition: all .2s;
+  }
+  .btn-open-tab:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(201,146,42,.4); }
+  .pdf-frame-wrap {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    position: relative;
+  }
+  .pdf-frame-wrap iframe {
+    width: 100%;
+    height: 680px;
+    border: none;
+    display: block;
+  }
+
+  /* ──────────────────────── FOOTER ──────────────────────────── */
+  .site-footer {
+    background: #1A3A38;
+    color: rgba(255,255,255,.5);
+    text-align: center;
+    padding: 14px 16px;
+    font-size: .78rem;
+    font-weight: 600;
+  }
+  .site-footer span { color: var(--gold-light); }
+
+  /* ──────────────────────── ANIMATIONS ──────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ──────────────────────── RESPONSIVE ──────────────────────── */
+  @media (max-width: 500px) {
+    .start-card { padding: 26px 18px; }
+    .question-card { padding: 20px 16px; }
+    .results-card { padding: 26px 18px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .tab-btn { font-size: .78rem; padding: 11px 6px; }
+    .pdf-frame-wrap iframe { height: 420px; }
+    .guide-header { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<header class="site-header">
+  <div class="header-badge">📚 Educación Media Superior · PAEC</div>
+  <h1>Simulador Interactivo de <span>Evaluación</span></h1>
+  <div class="author">Prof. Francisco De Jesús Luna Benítez</div>
+  <div class="header-deco">
+    <span></span>
+    <i>✦</i>
+    <span></span>
+  </div>
+</header>
+
+<!-- ═══════════════════════ TABS ═══════════════════════ -->
+<nav class="tabs-bar">
+  <button class="tab-btn active" onclick="showTab('exam')">🎓 Simulador de Examen</button>
+  <button class="tab-btn" onclick="showTab('guide')">📄 Guía de Estudio</button>
+</nav>
+
+<!-- ═══════════════════════ EXAM PANEL ═══════════════════════ -->
+<div id="panel-exam" class="panel active">
+  <div class="exam-wrap">
+
+    <!-- PANTALLA INICIO -->
+    <div id="screen-start">
+      <div class="start-card">
+        <div class="start-icon">📝</div>
+        <h2>Programa Aula, Escuela y Comunidad</h2>
+        <p>Evalúa tus conocimientos sobre el <strong>PAEC</strong> y los <strong>Proyectos Escolares Comunitarios</strong> mediante 30 reactivos de opción múltiple en distintos formatos: cuestionamiento directo, completamiento, ordenamiento y relación de elementos.</p>
+        <div class="info-pills">
+          <div class="pill"><span class="dot teal"></span>30 preguntas</div>
+          <div class="pill"><span class="dot gold"></span>4 formatos USICAMM</div>
+          <div class="pill"><span class="dot teal"></span>Retroalimentación inmediata</div>
+        </div>
+        <div class="input-group">
+          <label for="student-name">👤 Ingresa tu nombre completo</label>
+          <input type="text" id="student-name" placeholder="Ej. María López Hernández" autocomplete="name">
+        </div>
+        <button class="btn-primary" onclick="startExam()">🚀 Iniciar Simulador</button>
+      </div>
+    </div>
+
+    <!-- PANTALLA PREGUNTA -->
+    <div id="screen-question" style="display:none">
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span class="q-counter" id="q-counter">Pregunta 1 de 30</span>
+          <span class="q-score" id="q-score">Aciertos: 0</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      </div>
+
+      <div class="format-badge" id="format-badge">Cuestionamiento directo</div>
+
+      <div class="question-card">
+        <p class="question-text" id="question-text"></p>
+      </div>
+
+      <ul class="options-list" id="options-list"></ul>
+
+      <div class="feedback-box" id="feedback-box">
+        <span class="fb-icon" id="fb-icon"></span>
+        <div class="fb-content" id="fb-content"></div>
+      </div>
+
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">
+        Siguiente pregunta <span>→</span>
+      </button>
+    </div>
+
+    <!-- PANTALLA RESULTADOS -->
+    <div id="screen-results" style="display:none">
+      <div class="results-card">
+        <div class="results-emoji" id="results-emoji">🎉</div>
+        <h2>¡Simulación completada!</h2>
+        <div class="student-name-result" id="result-name"></div>
+
+        <div class="score-ring-wrap">
+          <div class="score-ring">
+            <svg viewBox="0 0 120 120" width="130" height="130">
+              <circle class="bg-ring" cx="60" cy="60" r="54"/>
+              <circle class="fg-ring" id="score-arc" cx="60" cy="60" r="54"/>
+            </svg>
+            <div class="score-text">
+              <div class="score-pct" id="score-pct">0%</div>
+              <div class="score-label">DESEMPEÑO</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="val green" id="res-correct">0</div>
+            <div class="lbl">✅ Respuestas correctas</div>
+          </div>
+          <div class="stat-card">
+            <div class="val red" id="res-wrong">0</div>
+            <div class="lbl">❌ Respuestas incorrectas</div>
+          </div>
+        </div>
+
+        <div class="motivator" id="motivator-msg"></div>
+
+        <button class="btn-retry" onclick="restartExam()">🔄 Volver a intentar</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════ GUIDE PANEL ═══════════════════════ -->
+<div id="panel-guide" class="panel">
+  <div class="guide-wrap">
+    <div class="guide-header">
+      <div class="guide-header-icon">📘</div>
+      <div>
+        <h3>Guía de Estudio — PAEC</h3>
+        <p>Programa Aula, Escuela y Comunidad · Material de apoyo para el simulador</p>
+      </div>
+    </div>
+    <div class="guide-actions">
+      <a class="btn-open-tab" href="https://drive.google.com/file/d/1ANuQff6kCZC8C1SY45FDiGn8-ylo1eZt/view?usp=drive_link" target="_blank">
+        🔗 Abrir PDF en nueva pestaña
+      </a>
+    </div>
+    <div class="pdf-frame-wrap">
+      <iframe
+        src="https://drive.google.com/file/d/1ANuQff6kCZC8C1SY45FDiGn8-ylo1eZt/preview"
+        allow="autoplay"
+        title="Guía de Estudio PAEC">
+      </iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer class="site-footer">
+  Diseñado por <span>Prof. Francisco De Jesús Luna Benítez</span> · Simulador PAEC · EMS México
+</footer>
+
+<!-- ═══════════════════════ JAVASCRIPT ═══════════════════════ -->
+<script>
+// ─────────────────────────── BANCO DE 30 PREGUNTAS ───────────────────────────
+const questions = [
+  {
+    type: "Cuestionamiento directo",
+    text: "¿Cuál es el objetivo principal del Programa Aula, Escuela y Comunidad (PAEC)?",
+    options: [
+      "Lograr que los planteles se transformen en escuelas abiertas y orientadoras, promoviendo a corto plazo el aprendizaje contextualizado y significativo del estudiantado.",
+      "Sustituir los programas de estudio anteriores del MCCEMS mediante proyectos escolares de carácter exclusivamente comunitario.",
+      "Evaluar el desempeño docente a través del diseño e implementación de proyectos con enfoque comunitario en los planteles."
+    ],
+    correct: 0,
+    justification: "Según el documento, el PAEC tiene el objetivo de lograr que los planteles se transformen en escuelas abiertas y orientadoras. Esto promueve a corto plazo un aprendizaje contextualizado y significativo en el estudiantado de EMS, y a largo plazo una nueva cultura educativa basada en el trabajo colaborativo entre el aula, la escuela y la comunidad."
+  },
+  {
+    type: "Cuestionamiento directo",
+    text: "¿En qué acuerdo se establece y regula el Marco Curricular Común de la Educación Media Superior (MCCEMS), fundamento normativo del PAEC?",
+    options: [
+      "Acuerdo número 14/12/23, publicado en el Diario Oficial de la Federación en materia de acoso escolar.",
+      "Acuerdo número 09/08/23 por el que se establece y regula el Marco Curricular Común de la Educación Media Superior.",
+      "Acuerdo número 07/06/24 que reforma la Ley General de Educación en materia de educación media superior."
+    ],
+    correct: 1,
+    justification: "El PAEC se fundamenta en el Anexo del Acuerdo número 09/08/23, por el que se establece y regula el Marco Curricular Común de la Educación Media Superior (MCCEMS). Este acuerdo constituye el principal referente normativo del programa y define la estrategia para articular los aprendizajes del estudiantado con las necesidades de la comunidad."
+  },
+  {
+    type: "Cuestionamiento directo",
+    text: "¿Cuántos componentes integran el Programa Aula, Escuela y Comunidad según su diseño estructural?",
+    options: [
+      "Tres componentes: referentes curriculares, estructura organizativa y productos del PAEC.",
+      "Cinco componentes: diagnóstico, diseño, implementación, seguimiento y evaluación del PEC.",
+      "Cuatro componentes: recursos pedagógicos, estructura organizacional, clima organizacional y productos."
+    ],
+    correct: 2,
+    justification: "El PAEC se articula en cuatro componentes: 1) recursos pedagógicos (referentes curriculares y pedagógicos), 2) una estructura organizacional que posibilite el trabajo coordinado, 3) un clima organizacional que motive el trabajo colaborativo y la autonomía en la didáctica, y 4) productos que evidencien el trabajo articulado entre la escuela y la comunidad."
+  },
+  {
+    type: "Relación de elementos",
+    text: "Seleccione la opción que relaciona correctamente cada componente del PAEC con la pregunta orientadora que le corresponde según el documento.\n\nComponentes:\n1. Referentes curriculares y pedagógicos\n2. Estructura organizativa\n3. Clima escolar\n4. Productos\n\nPreguntas orientadoras:\na) ¿Cuál es la orientación académica del PAEC?\nb) ¿Quiénes son los que participan en el PAEC?\nc) ¿Cómo hacer posible el PAEC?\nd) ¿Cómo concretar la formación integral del estudiantado con enfoque crítico, humanista y comunitario?",
+    options: [
+      "1a, 2b, 3c, 4d",
+      "1b, 2a, 3d, 4c",
+      "1c, 2d, 3a, 4b"
+    ],
+    correct: 0,
+    justification: "El documento establece explícitamente: el primer componente (referentes curriculares) responde a '¿cuál es la orientación académica?'; el segundo (estructura organizativa) responde a '¿quiénes participan?'; el tercero (clima escolar) responde a '¿cómo hacer posible el PAEC?'; y el cuarto (productos) responde a '¿cómo concretar la formación integral con enfoque crítico, humanista y comunitario?'"
+  },
+  {
+    type: "Completamiento",
+    text: "El tercer componente del PAEC es el clima escolar propicio para…",
+    options: [
+      "…garantizar la asistencia del estudiantado y el cumplimiento de los indicadores de aprovechamiento académico en las UAC.",
+      "…desarrollar procesos de participación abiertos e inclusivos al interior del plantel, el trabajo colaborativo y la autonomía en la didáctica.",
+      "…diseñar el Plan Operativo del PEC con base en el diagnóstico colectivo elaborado por el comité del plantel."
+    ],
+    correct: 1,
+    justification: "El documento señala que el tercer componente del PAEC es el clima escolar propicio para desarrollar procesos de participación abiertos e inclusivos al interior del plantel y con su entorno social, el trabajo colaborativo y la autonomía en la didáctica. Este componente responde a la pregunta: ¿cómo hacer posible el PAEC?"
+  },
+  {
+    type: "Cuestionamiento directo",
+    text: "¿Cuál es el principal producto que resulta del trabajo articulado y colaborativo en el PAEC?",
+    options: [
+      "El Plan Operativo semestral elaborado por el cuerpo docente con las progresiones de aprendizaje vinculadas.",
+      "El diagnóstico colectivo que describe las características, intereses y necesidades de la comunidad.",
+      "El Proyecto Escolar Comunitario (PEC), que vincula las progresiones de aprendizaje con problemáticas locales."
+    ],
+    correct: 2,
+    justification: "El cuarto componente del PAEC son los productos, siendo el principal el Proyecto Escolar Comunitario (PEC). El PEC es el principal instrumento para tender lazos entre las progresiones de aprendizaje del currículo fundamental y ampliado, y busca responder a los intereses del estudiantado y su contexto. Un plantel sin PEC no estaría concretando la implementación del PAEC."
+  },
+  {
+    type: "Cuestionamiento directo",
+    text: "¿Qué cinco grupos de personas integran la estructura organizativa del PAEC según el documento?",
+    options: [
+      "Comité del plantel, cuerpo docente, colectivo estudiantil, colectivo escolar y comunidad.",
+      "Directivos, docentes, padres de familia, autoridades locales y representantes de la COSFAC.",
+      "Cuerpo docente, colectivo estudiantil, SEMS, comunidad y Dirección General del subsistema."
+    ],
+    correct: 0,
+    justification: "El segundo componente del PAEC es la estructura organizativa integrada por cinco grupos: 1) un comité del plantel, 2) el cuerpo docente, 3) el colectivo estudiantil, 4) el colectivo escolar (apoyos administrativos y pedagógicos) y 5) la comunidad. Este componente responde a la pregunta: ¿quiénes son los que participan en el PAEC?"
+  },
+  {
+    type: "Ordenamiento",
+    text: "Ordene correctamente las cuatro fases de implementación del PAEC según lo establecido en el documento:\n\n1. Diseño del Proyecto Escolar Comunitario\n2. Puesta en práctica del Proyecto Escolar Comunitario\n3. Elaboración del diagnóstico colectivo\n4. Seguimiento y retroalimentación al Proyecto Escolar Comunitario",
+    options: [
+      "3, 1, 2, 4",
+      "1, 3, 4, 2",
+      "2, 3, 1, 4"
+    ],
+    correct: 0,
+    justification: "El documento establece que las fases de implementación del PAEC son: a) Elaboración del diagnóstico colectivo, b) Diseño del PEC, c) Puesta en práctica del PEC, y d) Seguimiento y retroalimentación al PEC. Esta secuencia sigue una lógica: primero se diagnóstica la realidad, luego se diseña el proyecto, después se ejecuta y finalmente se da seguimiento continuo."
+  },
+  {
+    type: "Cuestionamiento directo",
+    text: "¿Qué tipo de razón considera la disponibilidad de recursos, actores e iniciativas ya en curso para seleccionar una problemática comunitaria en el PEC?",
+    options: [
+      "Razones de factibilidad, relacionadas con la posibilidad técnica de abordar la problemática.",
+      "Razones de magnitud, vinculadas a la gravedad del problema en términos cuantitativos.",
+      "Razones de oportunidad, vinculadas a recursos, actores e iniciativas disponibles para atender la problemática."
+    ],
+    correct: 2,
+    justification: "Las razones de oportunidad se vinculan con la disponibilidad de recursos, actores e iniciativas ya en curso que se presenten como una oportunidad para atender alguno de los problemas identificados en el diagnóstico. Por ejemplo, cuando una ONG o autoridad local ofrece destinar recursos y expertise para desarrollar un proyecto sobre una problemática identificada colectivamente."
+  },
+  {
+    type: "Completamiento",
+    text: "El colectivo estudiantil tiene una labor central en la definición y desarrollo del PEC porque…",
+    options: [
+      "…participa desde la elaboración del diagnóstico, aporta información sobre sus intereses y necesidades, y tiene un papel relevante en la selección de la problemática comunitaria.",
+      "…diseña el Plan Operativo y define qué progresiones de aprendizaje serán abordadas de forma transversal en el proyecto.",
+      "…convoca a la comunidad y coordina las reuniones del comité del plantel junto con el personal directivo."
+    ],
+    correct: 0,
+    justification: "El colectivo estudiantil tiene una labor central: participa desde la elaboración del diagnóstico aportando información sobre sus características, intereses y necesidades; tiene un papel relevante en la selección del problema comunitario; y participa en la ejecución de actividades con y en beneficio de la comunidad, retroalimentando y sugiriendo ajustes al proyecto."
+  },
+  {
+    type: "Relación de elementos",
+    text: "Seleccione la opción que relaciona correctamente cada figura del comité del plantel con su función específica según el documento del PAEC.\n\nFiguras:\n1. Personal directivo\n2. Apoyo administrativo\n3. Cuerpo docente\n\nFunciones:\na) Convoca reuniones colectivas, informa resultados a la comunidad y envía documentación a la DG\nb) Levanta minutas de las reuniones del comité del plantel\nc) Elabora el Plan Operativo e integra las progresiones de aprendizaje al PEC",
+    options: [
+      "1c, 2b, 3a",
+      "1a, 2b, 3c",
+      "1b, 2c, 3a"
+    ],
+    correct: 1,
+    justification: "El documento precisa: el personal directivo convoca reuniones, informa resultados y envía documentación a la DG; el apoyo administrativo levanta minutas; y el cuerpo docente elabora el Plan Operativo y es el principal responsable de integrar las progresiones de aprendizaje de las UAC al PEC."
+  },
+  {
+    type: "Cuestionamiento directo",
+    text: "Cuando una problemática comunitaria tiene gran complejidad (como la violencia en las calles o el narcotráfico), ¿qué recomienda el documento del PAEC?",
+    options: [
+      "Descartar el tema y elegir una problemática de menor impacto social para el primer año de implementación.",
+      "Abordar el problema directamente con el apoyo permanente de autoridades locales y organizaciones federales.",
+      "Acotar las causas del problema complejo y trabajar sobre alguna de ellas que sea más factible de abordar desde el colectivo estudiantil."
+    ],
+    correct: 2,
+    justification: "El documento señala que problemas de gran complejidad —como violencia, narcotráfico, pobreza o calentamiento global— difícilmente podrán atenderse mediante un proyecto escolar. Se recomienda acotar las causas del problema complejo y trabajar sobre alguna de ellas; por ejemplo, vinculado a la pobreza pueden abordarse el embarazo adolescente, el rezago escolar o el desempleo, que son más factibles."
+  },
+  {
+    type: "Ordenamiento",
+    text: "Ordene los tres pasos para elaborar el diagnóstico colectivo en el PAEC según la secuencia establecida en el documento:\n\n1. Selección del problema o necesidad de la comunidad para desarrollar el PEC\n2. Sistematización y análisis de información recuperada\n3. Reunión para escuchar y recuperar información sobre características y problemáticas de la comunidad",
+    options: [
+      "3, 2, 1",
+      "1, 3, 2",
+      "2, 1, 3"
+    ],
+    correct: 0,
+    justification: "El documento establece tres pasos ordenados para el diagnóstico: 1) una reunión para recuperar información sobre características y necesidades de la comunidad; 2) sistematización y análisis de información; y 3) selección fundamentada del problema o necesidad comunitaria para el PEC. Este orden garantiza que la selección esté respaldada por evidencia sistematizada."
+  },
+  {
+    type: "Completamiento",
+    text: "El PEC tiene una doble naturaleza: es componente y a la vez producto del PAEC. Esto significa que un plantel sin PEC…",
+    options: [
+      "…puede igualmente implementar el PAEC a través del Plan Operativo y el diagnóstico colectivo como productos alternativos.",
+      "…no estaría concretando la implementación del PAEC, aunque puede generar otros productos que propicien el aprendizaje contextualizado.",
+      "…deberá solicitar apoyo formal a su Dirección General para diseñar un proyecto alternativo que sustituya al PEC."
+    ],
+    correct: 1,
+    justification: "El documento afirma que el PEC tiene doble naturaleza: es componente y producto del PAEC. Un plantel sin PEC no estaría concretando la implementación del PAEC. Sin embargo, también podrá generar otros productos —proyectos integradores, de investigación transversal— que propicien el aprendizaje contextualizado y significativo desde la transversalidad."
+  },
+  {
+    type: "Cuestionamiento directo",
+    text: "¿Cuál es la composición mínima obligatoria del comité del plantel en cuanto a docentes y estudiantes del ámbito aula?",
+    options: [
+      "Un docente y un estudiante representante elegidos mediante convocatoria abierta a todo el plantel.",
+      "Tres docentes y tres estudiantes que pertenezcan a distintos semestres y turnos del plantel.",
+      "Dos docentes del plantel (mínimo obligatorio) y dos estudiantes del plantel (mínimo obligatorio)."
+    ],
+    correct: 2,
+    justification: "El documento establece que en el ámbito Aula, el comité del plantel debe integrarse por dos docentes del plantel (mínimo obligatorio) y dos estudiantes del plantel (mínimo obligatorio). Además, recomienda que se postule voluntariamente o se elija por voto directo de sus pares al estudiantado y personal docente participante."
+  },
+  {
+    type: "Relación de elementos",
+    text: "Seleccione la opción que relaciona correctamente cada tipo de razón para seleccionar la problemática del PEC con su descripción.\n\nTipos de razón:\n1. Razones de magnitud\n2. Razones de interés de la comunidad\n3. Razones de factibilidad\n\nDescripciones:\na) Gravedad del problema en términos numéricos: afecta negativamente a muchas personas de la localidad\nb) Preferencias y motivaciones culturales de las personas de la localidad para atender ciertos temas con prioridad\nc) Posibilidad técnica de abordar la problemática desde la acción del colectivo estudiantil y la comunidad",
+    options: [
+      "1b, 2c, 3a",
+      "1a, 2b, 3c",
+      "1c, 2a, 3b"
+    ],
+    correct: 1,
+    justification: "El documento define: razones de magnitud = gravedad en términos numéricos con efectos negativos para muchas personas; razones de interés de la comunidad = preferencias y motivaciones culturales de las personas de la localidad; razones de factibilidad = posibilidad técnica de abordar la problemática desde la acción del colectivo estudiantil y la comunidad."
+  },
+  {
+    type: "Cuestionamiento directo",
+    text: "¿Qué metodologías sugiere el documento del PAEC para realizar el análisis de información durante la fase de diagnóstico colectivo?",
+    options: [
+      "FODA, árbol de problemas, diagrama de Ishikawa u otra metodología que resulte de utilidad para el análisis.",
+      "Encuestas en línea, grupos focales y entrevistas semiestructuradas como únicas herramientas válidas.",
+      "Rúbricas de evaluación formativa, portafolios de evidencias y listas de cotejo de indicadores educativos."
+    ],
+    correct: 0,
+    justification: "El documento recomienda metodologías como FODA (Fortalezas, Oportunidades, Debilidades y Amenazas), árbol de problemas, diagrama de Ishikawa u otra que resulte de utilidad. El análisis debe considerar cómo los problemas de la comunidad amenazan o afectan el desempeño del estudiantado y el cumplimiento de las funciones educativas del plantel."
+  },
+  {
+    type: "Completamiento",
+    text: "Las actividades que corresponden al estudiantado en el desarrollo del PEC serán realizadas…",
+    options: [
+      "…con previa autorización escrita y formal de la Dirección General del subsistema correspondiente en cada caso.",
+      "…únicamente dentro de las instalaciones del plantel para garantizar la integridad física de todo el estudiantado.",
+      "…siempre en entornos seguros, es decir, en espacios públicos, en grupo y acompañados por docentes o personal autorizado por el plantel."
+    ],
+    correct: 2,
+    justification: "El documento establece como medida de seguridad que las actividades del estudiantado serán realizadas siempre en entornos seguros: en espacios públicos, en grupo y acompañados por docentes o personal autorizado. Cuando los estudiantes sean menores de edad se recomienda informar y solicitar la autorización de sus madres, padres o personas tutoras."
+  },
+  {
+    type: "Ordenamiento",
+    text: "Ordene los contenidos mínimos del Proyecto Escolar Comunitario (PEC) según la secuencia lógica establecida en el documento:\n\n1. Plan Operativo\n2. Introducción\n3. Objetivo y alcance del PEC\n4. Diseño general",
+    options: [
+      "3, 2, 1, 4",
+      "2, 3, 4, 1",
+      "1, 4, 3, 2"
+    ],
+    correct: 1,
+    justification: "El documento establece el orden de los contenidos mínimos: a) Introducción (descripción del proceso diagnóstico y justificación), b) Objetivo y alcance (qué y para qué del PEC), c) Diseño general (fases y actividades), d) Plan Operativo (progresiones, tiempos y responsables). Esta secuencia va de lo justificativo a lo operativo."
+  },
+  {
+    type: "Cuestionamiento directo",
+    text: "¿Con qué propósito se menciona el Movimiento Nacional por la Alfabetización y la Educación (MoNAE) en el documento del PAEC?",
+    options: [
+      "Como el único PEC de carácter obligatorio para todos los planteles de educación media superior del país.",
+      "Como referencia normativa establecida en el Acuerdo 09/08/23 que todos los subsistemas de EMS deben implementar.",
+      "Como ejemplo de un PEC que responde a una necesidad comunitaria concreta con enfoque transversal y trabajo colaborativo."
+    ],
+    correct: 2,
+    justification: "El MoNAE se menciona como ejemplo de un PEC que cumple las características requeridas: responde a una necesidad comunitaria concreta (la alfabetización y disminución del rezago educativo), depende del trabajo colaborativo entre agentes del aula, escuela y comunidad, y se relaciona con varias progresiones de aprendizaje del currículo fundamental y del ampliado. No es obligatorio, sino un referente ilustrativo."
+  },
+  {
+    type: "Relación de elementos",
+    text: "Seleccione la opción que relaciona correctamente cada elemento del PEC con su contenido según el documento.\n\nElementos:\n1. Introducción\n2. Plan Operativo\n3. Diseño general\n\nContenidos:\na) Breve descripción del proceso diagnóstico y justificación para elegir la problemática y las progresiones de aprendizaje\nb) Progresiones de aprendizaje vinculadas al PEC, tiempos, didácticas para el trabajo y personas responsables\nc) Descripción de las fases y actividades que en su conjunto permitirán alcanzar el objetivo del PEC",
+    options: [
+      "1a, 2b, 3c",
+      "1c, 2a, 3b",
+      "1b, 2c, 3a"
+    ],
+    correct: 0,
+    justification: "La Introducción incluye la descripción del proceso diagnóstico y la justificación de la problemática y progresiones elegidas; el Plan Operativo contiene las progresiones de aprendizaje vinculadas, los tiempos, las didácticas para el trabajo y los responsables; y el Diseño general describe las fases y actividades para alcanzar el objetivo del PEC."
+  },
+  {
+    type: "Completamiento",
+    text: "El diagnóstico colectivo del PAEC podrá nutrirse de información de otros programas escolares, como el Plan de Mejora Continua…",
+    options: [
+      "…siempre que se realice previamente una nueva encuesta independiente a la comunidad para validar los datos existentes.",
+      "…a fin de evitar la duplicidad de tareas y esfuerzos por parte del plantel en la elaboración del diagnóstico.",
+      "…aunque deberá presentarse además un segundo diagnóstico específico y exclusivo para el PAEC de manera obligatoria."
+    ],
+    correct: 1,
+    justification: "El documento indica que el diagnóstico podrá nutrirse de información, instrumentos y diagnósticos de otros programas escolares como el Plan de Mejora Continua, a fin de evitar la duplicidad de tareas y esfuerzos por parte del plantel. No obstante, para un diagnóstico más consolidado se recomienda abordar los apartados establecidos en el propio documento del PAEC."
+  },
+  {
+    type: "Cuestionamiento directo",
+    text: "¿Cuál es la cita de Paulo Freire con la que abre el documento del Programa Aula, Escuela y Comunidad?",
+    options: [
+      "\"La educación es la práctica de la libertad y de la transformación social hacia una sociedad más justa.\"",
+      "\"El diálogo es el camino de la educación liberadora; sin él no existe verdadera comunión entre personas.\"",
+      "\"Nadie educa a nadie, así como tampoco nadie se educa a sí mismo; los hombres se educan en comunión, y el mundo es el mediador.\""
+    ],
+    correct: 2,
+    justification: "El documento del PAEC abre con la cita de Paulo Freire (2005, p. 61): 'Nadie educa a nadie, así como tampoco nadie se educa a sí mismo, los hombres se educan en comunión, y el mundo es el mediador.' Esta cita refleja la filosofía pedagógica dialógica y comunitaria que fundamenta el PAEC, donde el aprendizaje se construye colectivamente con y en la comunidad."
+  },
+  {
+    type: "Ordenamiento",
+    text: "Durante la primera reunión colectiva para la elaboración del diagnóstico, ordene los pasos recomendados según el documento:\n\n1. Aplicar dinámicas, juegos y cuestionarios para sensibilizar a la comunidad educativa\n2. Elegir por mayoría de votos a dos docentes que coordinarán el diagnóstico y la elaboración del PEC\n3. Sistematizar la información obtenida con apoyo del cuerpo docente y el colectivo estudiantil",
+    options: [
+      "1, 2, 3",
+      "2, 1, 3",
+      "3, 2, 1"
+    ],
+    correct: 1,
+    justification: "El documento recomienda aprovechar la primera reunión para: primero, elegir por mayoría de votos a dos docentes coordinadores del diagnóstico y del PEC; segundo, destinar un espacio para dinámicas, juegos y cuestionarios de sensibilización; y tercero, sistematizar la información, lo cual ocurre en la fase subsecuente a la primera reunión colectiva."
+  },
+  {
+    type: "Cuestionamiento directo",
+    text: "¿A qué pregunta orientadora responde el componente de estructura organizativa dentro del PAEC?",
+    options: [
+      "¿Quiénes son los que participan en el PAEC?",
+      "¿Cuál es la orientación académica del PAEC y sus referentes curriculares?",
+      "¿Cómo concretar la formación integral del estudiantado con enfoque crítico y comunitario?"
+    ],
+    correct: 0,
+    justification: "El documento especifica que el segundo componente del PAEC es la estructura organizativa, y que este componente responde a la pregunta: '¿quiénes son los que participan en el PAEC?' Está integrado por cinco grupos: comité del plantel, cuerpo docente, colectivo estudiantil, colectivo escolar y comunidad."
+  },
+  {
+    type: "Relación de elementos",
+    text: "Seleccione la opción que relaciona correctamente cada ámbito del comité del plantel con sus integrantes según lo establecido en el documento.\n\nÁmbitos:\n1. Aula\n2. Escuela\n3. Comunidad\n\nIntegrantes:\na) Director/a del plantel (obligatorio) y subdirector/a de vinculación (obligatorio donde exista)\nb) Dos madres/padres o tutores de familia (obligatorio) y representante(s) de asociaciones civiles o dependencias públicas/privadas\nc) Dos docentes del plantel (mínimo obligatorio) y dos estudiantes del plantel (mínimo obligatorio)",
+    options: [
+      "1c, 2b, 3a",
+      "1a, 2c, 3b",
+      "1c, 2a, 3b"
+    ],
+    correct: 2,
+    justification: "El documento establece: en el Aula, dos docentes y dos estudiantes del plantel; en la Escuela, el/la director/a (obligatorio) y el/la subdirector/a de vinculación (obligatorio donde exista la figura); en la Comunidad, dos madres/padres de familia (obligatorio) y representante(s) de asociaciones civiles o dependencias públicas/privadas (mínimo uno obligatorio donde exista)."
+  },
+  {
+    type: "Completamiento",
+    text: "El PAEC busca que la implementación del MCCEMS sea…",
+    options: [
+      "…gradual, con enfoque transversal y basado en proyectos contextualizados, que podrán apoyarse con metodologías activas y fomentar el intercambio de aprendizajes y la toma de decisiones colectiva.",
+      "…centralizada, con un único proyecto nacional para homogeneizar las prácticas educativas en todos los subsistemas del país.",
+      "…evaluada bimestralmente por la Coordinación Sectorial de Fortalecimiento Académico mediante indicadores de impacto."
+    ],
+    correct: 0,
+    justification: "El documento señala que el PAEC facilitará la implementación gradual del MCCEMS con enfoque transversal y basado en proyectos contextualizados, apoyándose en metodologías activas; además fomentará el intercambio de aprendizajes, la toma de decisiones colectiva y el desarrollo de planeaciones didácticas articuladas al PEC."
+  },
+  {
+    type: "Cuestionamiento directo",
+    text: "¿En qué circunstancia recomienda el documento que el comité del plantel se conforme con la proporción de uno por cada 200 estudiantes y uno por cada 20 docentes?",
+    options: [
+      "Cuando el plantel inicia por primera vez la implementación del PAEC sin contar con ningún comité previo.",
+      "Cuando la matrícula estudiantil supere los 2,000 alumnos y el personal docente supere los 40 integrantes.",
+      "Cuando el comité anterior haya concluido su periodo semestral y sea necesaria su renovación total."
+    ],
+    correct: 1,
+    justification: "El documento recomienda que cuando el total de la matrícula estudiantil y del personal docente del plantel supere los 2,000 y 40, respectivamente, se valore en colectivo la posibilidad de conformar el comité con la proporción de uno por cada 200 estudiantes y uno por cada 20 docentes, considerando también el criterio de equidad de género."
+  },
+  {
+    type: "Ordenamiento",
+    text: "En la fase de seguimiento y retroalimentación al PEC, ordene los momentos del proceso según la lógica establecida en el documento:\n\n1. Evaluación final para decidir la continuidad, actualización o exploración de nuevos PEC\n2. Reuniones mensuales o bimestrales para dialogar sobre avances, resultados y recomendaciones de mejora\n3. Establecimiento por parte del director/a de los mecanismos y momentos de seguimiento a comunicar al plantel",
+    options: [
+      "3, 2, 1",
+      "1, 3, 2",
+      "2, 3, 1"
+    ],
+    correct: 0,
+    justification: "El documento establece: primero, el director/a comunica al plantel y a la comunidad los mecanismos de seguimiento; luego se establecen momentos mensuales o bimestrales para dialogar sobre avances y resultados; finalmente, al término del semestre o ciclo escolar se realiza la evaluación final para decidir si se da continuidad, se actualiza el PEC o se exploran nuevas propuestas."
+  },
+  {
+    type: "Completamiento",
+    text: "El PAEC constituye un esfuerzo gradual, diferenciado, participativo y complejo porque…",
+    options: [
+      "…es coordinado por la COSFAC, que define un protocolo único y uniforme para todos los planteles del sistema educativo nacional.",
+      "…responde a las necesidades y características de cada plantel, requiere colaboración e involucramiento del plantel y la comunidad, e integra interacciones, perspectivas y formas de trabajo diversas.",
+      "…la SEMS establece metas anuales de desempeño para garantizar que todos los planteles implementen el mismo modelo pedagógico."
+    ],
+    correct: 1,
+    justification: "El documento describe el PAEC como: gradual (esfuerzo sistémico y continuo); diferenciado (responde a las necesidades y características de cada plantel y sus comunidades); participativo (requiere colaboración e involucramiento del plantel y de la comunidad); y complejo (integra un conjunto de interacciones, perspectivas y formas de trabajo diversas)."
+  }
+];
+
+// ─────────────────────────── ESTADO ───────────────────────────
+let state = {
+  studentName: '',
+  current: 0,
+  score: 0,
+  answered: false
+};
+
+// ─────────────────────────── TABS ───────────────────────────
+function showTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ─────────────────────────── EXAM ───────────────────────────
+function startExam() {
+  const name = document.getElementById('student-name').value.trim();
+  if (!name) {
+    document.getElementById('student-name').focus();
+    document.getElementById('student-name').style.borderColor = 'var(--wrong)';
+    setTimeout(() => document.getElementById('student-name').style.borderColor = '', 1500);
+    return;
+  }
+  state.studentName = name;
+  state.current = 0;
+  state.score = 0;
+  state.answered = false;
+  document.getElementById('screen-start').style.display = 'none';
+  document.getElementById('screen-question').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[state.current];
+  state.answered = false;
+
+  // Progress
+  const pct = (state.current / questions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-counter').textContent = `Pregunta ${state.current + 1} de ${questions.length}`;
+  document.getElementById('q-score').textContent = `Aciertos: ${state.score}`;
+
+  // Format badge
+  const fmtColors = {
+    'Cuestionamiento directo': '#1A7A72',
+    'Completamiento': '#6B2FA0',
+    'Ordenamiento': '#C9922A',
+    'Relación de elementos': '#1A4A7A'
+  };
+  const badge = document.getElementById('format-badge');
+  badge.textContent = q.type;
+  badge.style.background = fmtColors[q.type] + '18';
+  badge.style.color = fmtColors[q.type];
+  badge.style.borderColor = fmtColors[q.type] + '55';
+
+  // Question text
+  document.getElementById('question-text').textContent = q.text;
+
+  // Options
+  const list = document.getElementById('options-list');
+  list.innerHTML = '';
+  const labels = ['A', 'B', 'C'];
+  q.options.forEach((opt, i) => {
+    const li = document.createElement('li');
+    li.className = 'option-item';
+    li.id = `opt-${i}`;
+    li.innerHTML = `<button onclick="selectAnswer(${i})">
+      <span class="option-label">${labels[i]}</span>
+      <span>${opt}</span>
+    </button>`;
+    list.appendChild(li);
+  });
+
+  // Reset feedback
+  const fb = document.getElementById('feedback-box');
+  fb.className = 'feedback-box';
+  document.getElementById('btn-next').className = 'btn-next';
+
+  // Animate question card
+  const qCard = document.querySelector('.question-card');
+  qCard.style.animation = 'none';
+  void qCard.offsetWidth;
+  qCard.style.animation = 'fadeUp .4s ease both';
+}
+
+function selectAnswer(idx) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const q = questions[state.current];
+  const correct = q.correct;
+  const isCorrect = idx === correct;
+  if (isCorrect) state.score++;
+
+  // Update score display
+  document.getElementById('q-score').textContent = `Aciertos: ${state.score}`;
+
+  // Style options
+  for (let i = 0; i < 3; i++) {
+    const li = document.getElementById(`opt-${i}`);
+    const btn = li.querySelector('button');
+    btn.disabled = true;
+    if (i === correct) li.classList.add('correct');
+    else if (i === idx && !isCorrect) li.classList.add('wrong');
+  }
+
+  // Feedback
+  const fb = document.getElementById('feedback-box');
+  const fbContent = document.getElementById('fb-content');
+  const fbIcon = document.getElementById('fb-icon');
+
+  if (isCorrect) {
+    fb.className = 'feedback-box correct-fb show';
+    fbIcon.textContent = '✅';
+    fbContent.className = 'fb-content correct-txt';
+    fbContent.innerHTML = `<strong>¡Respuesta correcta!</strong>${q.justification}`;
+  } else {
+    fb.className = 'feedback-box wrong-fb show';
+    fbIcon.textContent = '❌';
+    fbContent.className = 'fb-content wrong-txt';
+    const labels = ['A', 'B', 'C'];
+    fbContent.innerHTML = `<strong>Respuesta incorrecta — La opción correcta es ${labels[correct]}.</strong>${q.justification}`;
+  }
+
+  // Show next button
+  const btnNext = document.getElementById('btn-next');
+  const isLast = state.current === questions.length - 1;
+  btnNext.className = 'btn-next show';
+  btnNext.innerHTML = isLast
+    ? '🏁 Ver mis resultados <span>→</span>'
+    : 'Siguiente pregunta <span>→</span>';
+}
+
+function nextQuestion() {
+  state.current++;
+  if (state.current >= questions.length) {
+    showResults();
+  } else {
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function showResults() {
+  document.getElementById('screen-question').style.display = 'none';
+  document.getElementById('screen-results').style.display = 'block';
+
+  const total = questions.length;
+  const score = state.score;
+  const wrong = total - score;
+  const pct = Math.round((score / total) * 100);
+
+  document.getElementById('result-name').textContent = state.studentName;
+  document.getElementById('res-correct').textContent = score;
+  document.getElementById('res-wrong').textContent = wrong;
+  document.getElementById('score-pct').textContent = pct + '%';
+
+  // Ring animation
+  const circumference = 2 * Math.PI * 54; // 339.292
+  const offset = circumference - (pct / 100) * circumference;
+  const arc = document.getElementById('score-arc');
+  arc.style.strokeDashoffset = circumference;
+  arc.style.stroke = pct >= 70 ? 'var(--teal)' : pct >= 50 ? 'var(--gold)' : 'var(--wrong)';
+  setTimeout(() => { arc.style.strokeDashoffset = offset; }, 100);
+
+  // Emoji & message
+  let emoji, msg;
+  if (pct >= 90) {
+    emoji = '🏆';
+    msg = `¡Excelente desempeño, ${state.studentName.split(' ')[0]}! Dominas los contenidos del PAEC con alta solidez. Tu comprensión del programa es sobresaliente. ¡Sigue así!`;
+  } else if (pct >= 70) {
+    emoji = '🎉';
+    msg = `¡Buen trabajo, ${state.studentName.split(' ')[0]}! Tu desempeño es satisfactorio. Refuerza los temas en los que tuviste dificultades revisando la guía de estudio y vuelve a intentarlo.`;
+  } else if (pct >= 50) {
+    emoji = '📚';
+    msg = `Vas por buen camino, ${state.studentName.split(' ')[0]}. Tienes bases importantes, pero necesitas repasar varios contenidos del PAEC. Consulta la guía de estudio y sigue practicando.`;
+  } else {
+    emoji = '💪';
+    msg = `No te desanimes, ${state.studentName.split(' ')[0]}. Esta es una gran oportunidad para aprender. Revisa detenidamente la guía de estudio del PAEC y vuelve a intentarlo cuando te sientas listo/a.`;
+  }
+  document.getElementById('results-emoji').textContent = emoji;
+  document.getElementById('motivator-msg').textContent = msg;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartExam() {
+  document.getElementById('screen-results').style.display = 'none';
+  document.getElementById('screen-start').style.display = 'block';
+  document.getElementById('student-name').value = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
