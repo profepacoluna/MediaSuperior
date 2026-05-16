@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Simulador LGDNNA – Prof. Francisco De Jesús Luna Benítez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --teal:       #1a7f74;
+    --teal-light: #2aa99b;
+    --teal-pale:  #e0f5f3;
+    --amber:      #f0a500;
+    --amber-pale: #fff8e6;
+    --green:      #22c55e;
+    --green-pale: #dcfce7;
+    --red:        #ef4444;
+    --red-pale:   #fee2e2;
+    --navy:       #0f3460;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --white:      #ffffff;
+    --card-bg:    #f8fffe;
+    --radius:     18px;
+    --shadow:     0 8px 32px rgba(26,127,116,.13);
+    --shadow-sm:  0 2px 10px rgba(0,0,0,.07);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(145deg, #e8faf8 0%, #f0f9ff 40%, #fdf6e3 100%);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 2px solid #e2f4f2;
+  }
+  .nav-tab {
+    padding: 9px 26px;
+    border-radius: 30px 30px 0 0;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: .95rem;
+    cursor: pointer;
+    transition: all .25s;
+    background: transparent;
+    color: var(--muted);
+  }
+  .nav-tab.active {
+    background: var(--teal);
+    color: #fff;
+    box-shadow: 0 -2px 12px rgba(26,127,116,.22);
+  }
+  .nav-tab:not(.active):hover { background: var(--teal-pale); color: var(--teal); }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #0f3460 0%, #1a7f74 60%, #2aa99b 100%);
+    color: #fff;
+    text-align: center;
+    padding: 36px 20px 30px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .header-badge {
+    display: inline-block;
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 30px;
+    padding: 5px 18px;
+    font-size: .8rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-family: 'Lora', serif;
+    font-size: clamp(1.4rem, 4vw, 2.3rem);
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+  .header h2 {
+    font-size: clamp(.85rem, 2.5vw, 1.1rem);
+    font-weight: 400;
+    opacity: .88;
+    margin-bottom: 6px;
+  }
+  .header-author {
+    font-size: .88rem;
+    opacity: .75;
+    font-style: italic;
+  }
+
+  /* ── MAIN PANEL ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── WELCOME SCREEN ── */
+  .welcome-wrap {
+    max-width: 560px;
+    margin: 40px auto;
+    padding: 0 16px;
+  }
+  .welcome-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 40px 36px;
+    text-align: center;
+    animation: fadeUp .5s ease both;
+  }
+  .welcome-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--teal-pale), #cff3ee);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2rem;
+  }
+  .welcome-card h3 {
+    font-family: 'Lora', serif;
+    font-size: 1.5rem;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+  .welcome-card p {
+    font-size: .95rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+  .info-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .pill {
+    background: var(--teal-pale);
+    color: var(--teal);
+    border-radius: 30px;
+    padding: 5px 14px;
+    font-size: .82rem;
+    font-weight: 700;
+  }
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .input-group label {
+    font-weight: 700;
+    font-size: .92rem;
+    color: var(--navy);
+    text-align: left;
+  }
+  .input-group input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #d1faf5;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    color: var(--text);
+    transition: border-color .2s, box-shadow .2s;
+    outline: none;
+    background: var(--card-bg);
+  }
+  .input-group input:focus {
+    border-color: var(--teal-light);
+    box-shadow: 0 0 0 4px rgba(42,169,155,.12);
+  }
+
+  /* ── BUTTONS ── */
+  .btn-primary {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .18s, box-shadow .18s;
+    box-shadow: 0 4px 18px rgba(26,127,116,.3);
+    letter-spacing: .3px;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,127,116,.38); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  .btn-secondary {
+    padding: 12px 28px;
+    background: var(--white);
+    color: var(--teal);
+    border: 2px solid var(--teal);
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: .97rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .18s;
+  }
+  .btn-secondary:hover { background: var(--teal-pale); }
+
+  /* ── QUIZ SCREEN ── */
+  .quiz-wrap {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  /* Progress */
+  .progress-bar-outer {
+    background: #d1faf5;
+    border-radius: 30px;
+    height: 10px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--teal-light));
+    border-radius: 30px;
+    transition: width .4s ease;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: .82rem;
+    color: var(--muted);
+    margin-bottom: 18px;
+    font-weight: 600;
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px 30px;
+    animation: fadeUp .35s ease both;
+    border-top: 4px solid var(--teal);
+  }
+  .q-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .q-badge {
+    background: var(--teal-pale);
+    color: var(--teal);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: .76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .q-badge.art { background: var(--amber-pale); color: #b45309; }
+  .q-number {
+    font-family: 'Lora', serif;
+    font-size: .92rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .q-text {
+    font-size: 1.06rem;
+    line-height: 1.65;
+    color: var(--text);
+    margin-bottom: 22px;
+    font-weight: 600;
+  }
+
+  /* Relation table */
+  .relation-table {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+    background: var(--teal-pale);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .relation-col h4 {
+    font-size: .8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  .relation-col ul { list-style: none; }
+  .relation-col ul li {
+    font-size: .88rem;
+    color: var(--text);
+    padding: 4px 0;
+    border-bottom: 1px dashed #a8ddd9;
+    line-height: 1.45;
+  }
+  .relation-col ul li:last-child { border-bottom: none; }
+
+  /* Order list */
+  .order-list {
+    background: var(--teal-pale);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    list-style: none;
+  }
+  .order-list li {
+    padding: 6px 0;
+    font-size: .9rem;
+    color: var(--text);
+    border-bottom: 1px dashed #a8ddd9;
+    line-height: 1.5;
+    display: flex;
+    gap: 8px;
+  }
+  .order-list li:last-child { border-bottom: none; }
+  .order-num {
+    background: var(--teal);
+    color: #fff;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Options */
+  .options-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    width: 100%;
+    text-align: left;
+    padding: 14px 18px;
+    border: 2px solid #e2f4f2;
+    border-radius: 12px;
+    background: var(--card-bg);
+    font-family: 'Nunito', sans-serif;
+    font-size: .95rem;
+    color: var(--text);
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.5;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--teal-light);
+    background: var(--teal-pale);
+    transform: translateX(3px);
+  }
+  .option-letter {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #e2f4f2;
+    color: var(--teal);
+    font-weight: 800;
+    font-size: .88rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all .2s;
+  }
+  .option-btn:hover:not(:disabled) .option-letter { background: var(--teal); color: #fff; }
+  .option-btn.selected { border-color: var(--teal-light); background: #eefaf8; }
+  .option-btn.selected .option-letter { background: var(--teal-light); color: #fff; }
+  .option-btn.correct { border-color: var(--green); background: var(--green-pale); }
+  .option-btn.correct .option-letter { background: var(--green); color: #fff; }
+  .option-btn.wrong { border-color: var(--red); background: var(--red-pale); }
+  .option-btn.wrong .option-letter { background: var(--red); color: #fff; }
+  .option-btn:disabled { cursor: default; }
+
+  /* Feedback */
+  .feedback-box {
+    margin-top: 18px;
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: .92rem;
+    line-height: 1.6;
+    display: none;
+    animation: fadeUp .3s ease both;
+  }
+  .feedback-box.correct-fb {
+    background: var(--green-pale);
+    border-left: 4px solid var(--green);
+    color: #166534;
+    display: block;
+  }
+  .feedback-box.wrong-fb {
+    background: var(--red-pale);
+    border-left: 4px solid var(--red);
+    color: #991b1b;
+    display: block;
+  }
+  .feedback-box strong { font-weight: 800; }
+
+  /* Nav */
+  .quiz-nav {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 22px;
+    gap: 10px;
+  }
+  .btn-next {
+    padding: 13px 32px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .18s, box-shadow .18s, opacity .2s;
+    box-shadow: 0 4px 16px rgba(26,127,116,.28);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .btn-next.visible { opacity: 1; pointer-events: auto; }
+  .btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(26,127,116,.36); }
+
+  /* Stat strip */
+  .stat-strip {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .stat-chip {
+    flex: 1;
+    min-width: 90px;
+    background: var(--white);
+    border-radius: 12px;
+    padding: 10px 14px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    font-size: .8rem;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .stat-chip span {
+    display: block;
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 2px;
+  }
+  .stat-chip.ac span { color: var(--green); }
+  .stat-chip.er span { color: var(--red); }
+  .stat-chip.re span { color: var(--teal); }
+
+  /* ── RESULTS SCREEN ── */
+  .results-wrap {
+    max-width: 560px;
+    margin: 40px auto;
+    padding: 0 16px 40px;
+    animation: fadeUp .5s ease both;
+  }
+  .results-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 36px 32px;
+    text-align: center;
+  }
+  .results-trophy {
+    font-size: 3.5rem;
+    margin-bottom: 12px;
+    animation: bounce .6s ease .2s both;
+  }
+  .results-name {
+    font-family: 'Lora', serif;
+    font-size: 1.4rem;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .results-subtitle { font-size: .9rem; color: var(--muted); margin-bottom: 28px; }
+  .score-circle {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(var(--teal) 0deg, var(--teal-light) calc(var(--pct) * 3.6deg), #e2f4f2 0deg);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+  .score-inner {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    background: var(--white);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .score-pct {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--teal);
+    line-height: 1;
+  }
+  .score-label { font-size: .7rem; color: var(--muted); font-weight: 700; }
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .res-box {
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .res-box .big { font-size: 1.8rem; font-weight: 800; line-height: 1; }
+  .res-box .lbl { font-size: .75rem; font-weight: 700; margin-top: 4px; }
+  .res-box.ac { background: var(--green-pale); color: #166534; }
+  .res-box.er { background: var(--red-pale); color: #991b1b; }
+  .res-box.tt { background: var(--teal-pale); color: var(--teal); }
+  .motivator {
+    background: linear-gradient(135deg, var(--teal-pale), #fdf6e3);
+    border-radius: 14px;
+    padding: 18px 20px;
+    font-size: .95rem;
+    color: var(--navy);
+    font-weight: 600;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--amber);
+  }
+  .btn-retry {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--navy), #1a4a8a);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .18s, box-shadow .18s;
+    box-shadow: 0 4px 16px rgba(15,52,96,.25);
+  }
+  .btn-retry:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(15,52,96,.33); }
+
+  /* ── GUÍA SCREEN ── */
+  .guide-wrap {
+    max-width: 860px;
+    margin: 28px auto;
+    padding: 0 16px 40px;
+  }
+  .guide-header {
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .guide-header h3 {
+    font-family: 'Lora', serif;
+    font-size: 1.5rem;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .guide-header p { font-size: .9rem; color: var(--muted); }
+  .guide-iframe-wrap {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 2px solid #d1faf5;
+  }
+  .guide-iframe-wrap iframe {
+    width: 100%;
+    height: 680px;
+    border: none;
+    display: block;
+  }
+  .guide-alt {
+    text-align: center;
+    margin-top: 16px;
+    font-size: .88rem;
+    color: var(--muted);
+  }
+  .guide-alt a {
+    color: var(--teal);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .guide-alt a:hover { text-decoration: underline; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 500px) {
+    .question-card { padding: 22px 18px; }
+    .welcome-card { padding: 28px 20px; }
+    .results-card { padding: 28px 20px; }
+    .relation-table { grid-template-columns: 1fr; }
+    .results-grid { grid-template-columns: 1fr 1fr 1fr; }
+    .guide-iframe-wrap iframe { height: 480px; }
+    .score-circle { width: 100px; height: 100px; }
+    .score-inner { width: 74px; height: 74px; }
+    .score-pct { font-size: 1.3rem; }
+    .nav-tab { padding: 7px 14px; font-size: .85rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ──────────── HEADER ──────────── -->
+<header class="header">
+  <div class="header-badge">LGDNNA · Artes. 57, 58 y 59</div>
+  <h1>Simulador Interactivo de Evaluación</h1>
+  <h2>Ley General de los Derechos de Niñas, Niños y Adolescentes</h2>
+  <p class="header-author">Prof. Francisco De Jesús Luna Benítez</p>
+</header>
+
+<!-- ──────────── NAV TABS ──────────── -->
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="showPanel('simulador')">📋 Simulador</button>
+  <button class="nav-tab" onclick="showPanel('guia')">📖 Guía de Estudio</button>
+</nav>
+
+<!-- ══════════ PANEL SIMULADOR ══════════ -->
+<div id="panel-simulador" class="panel active">
+
+  <!-- WELCOME -->
+  <div id="screen-welcome">
+    <div class="welcome-wrap">
+      <div class="welcome-card">
+        <div class="welcome-icon">📚</div>
+        <h3>Bienvenido al simulador</h3>
+        <p>Este instrumento evalúa tus conocimientos sobre los <strong>Artículos 57, 58 y 59</strong> de la LGDNNA, referentes al derecho a la educación, los fines educativos y los ambientes escolares libres de violencia.</p>
+        <div class="info-pills">
+          <span class="pill">📝 30 reactivos</span>
+          <span class="pill">3 opciones por pregunta</span>
+          <span class="pill">Retroalimentación inmediata</span>
+          <span class="pill">Estilo USICAMM</span>
+        </div>
+        <div class="input-group">
+          <label for="student-name">Escribe tu nombre completo</label>
+          <input type="text" id="student-name" placeholder="Ej. María González López" autocomplete="off"/>
+        </div>
+        <button class="btn-primary" onclick="iniciarSimulador()">Iniciar simulador →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" style="display:none;">
+    <div class="quiz-wrap">
+      <!-- stat strip -->
+      <div class="stat-strip">
+        <div class="stat-chip re"><span id="stat-restantes">30</span>Restantes</div>
+        <div class="stat-chip ac"><span id="stat-aciertos">0</span>Aciertos</div>
+        <div class="stat-chip er"><span id="stat-errores">0</span>Errores</div>
+      </div>
+      <!-- progress -->
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="progress-bar" style="width:0%"></div>
+      </div>
+      <div class="progress-meta">
+        <span id="prog-text">Pregunta 1 de 30</span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <!-- card -->
+      <div class="question-card" id="question-card">
+        <div class="q-meta">
+          <span class="q-badge" id="q-tipo-badge">Tipo</span>
+          <span class="q-badge art" id="q-art-badge">Artículo</span>
+          <span class="q-number" id="q-number-label">Pregunta 1</span>
+        </div>
+        <div class="q-text" id="q-text"></div>
+        <div id="q-extra"></div>
+        <ul class="options-list" id="options-list"></ul>
+        <div class="feedback-box" id="feedback-box"></div>
+        <div class="quiz-nav">
+          <button class="btn-next" id="btn-next" onclick="siguientePregunta()">Siguiente →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="screen-results" style="display:none;">
+    <div class="results-wrap">
+      <div class="results-card">
+        <div class="results-trophy" id="results-trophy">🏆</div>
+        <p class="results-name" id="results-name">Estudiante</p>
+        <p class="results-subtitle">Resultado del Simulador LGDNNA</p>
+        <div class="score-circle" id="score-circle" style="--pct:0">
+          <div class="score-inner">
+            <span class="score-pct" id="score-pct-val">0%</span>
+            <span class="score-label">DESEMPEÑO</span>
+          </div>
+        </div>
+        <div class="results-grid">
+          <div class="res-box ac">
+            <div class="big" id="r-aciertos">0</div>
+            <div class="lbl">✅ Aciertos</div>
+          </div>
+          <div class="res-box er">
+            <div class="big" id="r-errores">0</div>
+            <div class="lbl">❌ Errores</div>
+          </div>
+          <div class="res-box tt">
+            <div class="big">30</div>
+            <div class="lbl">📋 Total</div>
+          </div>
+        </div>
+        <div class="motivator" id="motivator-msg"></div>
+        <button class="btn-retry" onclick="reiniciar()">🔄 Intentar de nuevo</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /panel-simulador -->
+
+
+<!-- ══════════ PANEL GUÍA ══════════ -->
+<div id="panel-guia" class="panel">
+  <div class="guide-wrap">
+    <div class="guide-header">
+      <h3>📖 Guía de Estudio</h3>
+      <p>Consulta el material de apoyo para reforzar tus conocimientos sobre la LGDNNA</p>
+    </div>
+    <div class="guide-iframe-wrap">
+      <iframe
+        src="https://drive.google.com/file/d/1HQeADwecBwd5vDKmM_s-GQd-bfjD-n0j/preview"
+        allow="autoplay"
+        title="Guía de Estudio LGDNNA">
+      </iframe>
+    </div>
+    <p class="guide-alt">
+      ¿Problemas para visualizar?
+      <a href="https://drive.google.com/file/d/1HQeADwecBwd5vDKmM_s-GQd-bfjD-n0j/view?usp=drive_link" target="_blank">Abre el PDF en una nueva pestaña →</a>
+    </p>
+  </div>
+</div>
+
+
+<!-- ──────────── JAVASCRIPT ──────────── -->
+<script>
+/* ===== BANCO DE PREGUNTAS ===== */
+const preguntas = [
+  /* ─── ARTÍCULO 57 ─── */
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 57",
+    base: "¿Cuál es el enfoque que debe guiar el derecho a la educación de niñas, niños y adolescentes según el Artículo 57 de la LGDNNA?",
+    extra: null,
+    opciones: [
+      "Enfoque de competencias laborales y desarrollo económico nacional",
+      "Enfoque de eficiencia administrativa y cobertura escolar ampliada",
+      "Enfoque de derechos humanos, igualdad sustantiva y respeto a la dignidad humana"
+    ],
+    correcta: 2,
+    justificacion: "El Art. 57 establece que el derecho a la educación debe basarse en un enfoque de derechos humanos, igualdad sustantiva y respeto a la dignidad humana. Estos tres pilares son el fundamento de toda práctica educativa conforme a la LGDNNA."
+  },
+  {
+    tipo: "Completamiento",
+    articulo: "Art. 57",
+    base: "Según el Artículo 57, las autoridades tienen la obligación de garantizar la gratuidad de la educación pública obligatoria, asegurar la accesibilidad geográfica y económica, y destinar los recursos necesarios para…",
+    extra: null,
+    opciones: [
+      "…una infraestructura adecuada en las instituciones educativas.",
+      "…el desarrollo de competencias digitales básicas en los estudiantes.",
+      "…la formación continua del personal docente de manera exclusiva."
+    ],
+    correcta: 0,
+    justificacion: "El Art. 57 señala que las obligaciones del Estado incluyen garantizar la gratuidad, la accesibilidad y destinar recursos para una infraestructura adecuada. Esto garantiza condiciones materiales dignas para el aprendizaje."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 57",
+    base: "¿Qué tipo de acciones deben aplicarse para evitar el rezago en grupos vulnerables y garantizar la plena inclusión de estudiantes con discapacidad, según el Artículo 57?",
+    extra: null,
+    opciones: [
+      "Acciones de compensación económica directa para las familias de los estudiantes",
+      "Acciones afirmativas que incluyan instalaciones accesibles y personal capacitado",
+      "Programas de educación especial en centros separados al sistema educativo regular"
+    ],
+    correcta: 1,
+    justificacion: "El Art. 57 establece que deben aplicarse acciones afirmativas para evitar el rezago en grupos vulnerables, garantizando instalaciones accesibles y personal capacitado. Esto promueve la inclusión plena dentro del mismo sistema educativo."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 57",
+    base: "De acuerdo con el Artículo 57 de la LGDNNA, ¿cómo debe administrarse la disciplina escolar para estar alineada con sus principios fundamentales?",
+    extra: null,
+    opciones: [
+      "Aplicando sanciones progresivas establecidas en el reglamento interno del plantel",
+      "Mediante la intervención directa de los padres de familia en cada caso disciplinario",
+      "De manera compatible con la dignidad humana, erradicando castigos corporales y tratos humillantes"
+    ],
+    correcta: 2,
+    justificacion: "El Art. 57 es explícito al señalar que la disciplina debe administrarse de manera compatible con la dignidad humana, erradicando prácticas discriminatorias, castigos corporales o tratos humillantes y degradantes."
+  },
+  {
+    tipo: "Relación de elementos",
+    articulo: "Art. 57",
+    base: "Seleccione la opción que relacione correctamente cada obligación del Estado (Artículo 57) con su descripción correspondiente.",
+    extra: {
+      tipo: "relacion",
+      col1: { titulo: "Obligación", items: ["1. Accesibilidad", "2. Acciones afirmativas", "3. Disciplina escolar"] },
+      col2: { titulo: "Descripción", items: [
+        "a) Erradicar castigos corporales y tratos humillantes en las escuelas",
+        "b) Garantizar que todos los niños accedan a la escuela sin obstáculos de distancia o costo",
+        "c) Medidas para evitar el rezago e incluir plenamente a grupos vulnerables"
+      ]}
+    },
+    opciones: ["1b, 2c, 3a", "1c, 2a, 3b", "1a, 2b, 3c"],
+    correcta: 0,
+    justificacion: "La accesibilidad (1) elimina barreras geográficas y económicas (b); las acciones afirmativas (2) evitan el rezago en grupos vulnerables (c); y la disciplina escolar (3) debe erradicar castigos y tratos humillantes (a), todo según el Art. 57."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 57",
+    base: "En el marco del Artículo 57 de la LGDNNA, ¿cuál de las siguientes prácticas escolares es incompatible con la dignidad humana?",
+    extra: null,
+    opciones: [
+      "Establecer reglamentos de convivencia con participación estudiantil",
+      "Aplicar castigos físicos como medida disciplinaria ante conductas inadecuadas",
+      "Promover acuerdos de sana convivencia entre docentes y alumnos"
+    ],
+    correcta: 1,
+    justificacion: "El Art. 57 prohíbe explícitamente los castigos corporales y tratos humillantes, ya que son incompatibles con la dignidad humana. La disciplina debe respetar los derechos de niñas, niños y adolescentes en todo momento."
+  },
+  {
+    tipo: "Completamiento",
+    articulo: "Art. 57",
+    base: "El Artículo 57 establece que para garantizar la plena inclusión de estudiantes con discapacidad, las instituciones educativas deben proporcionar instalaciones accesibles y…",
+    extra: null,
+    opciones: [
+      "…programas exclusivos de aprendizaje a distancia para este grupo.",
+      "…tutores privados financiados directamente por las familias.",
+      "…personal capacitado para atender sus necesidades educativas específicas."
+    ],
+    correcta: 2,
+    justificacion: "El Art. 57 señala que la inclusión plena requiere tanto instalaciones accesibles como personal capacitado. Ambos elementos son indispensables para garantizar una educación de calidad a estudiantes con discapacidad."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 57",
+    base: "¿Cuál es el principal fundamento del derecho a la educación de niñas, niños y adolescentes, de acuerdo con el Artículo 57 de la LGDNNA?",
+    extra: null,
+    opciones: [
+      "El respeto a la dignidad humana y la igualdad sustantiva",
+      "La eficiencia en los resultados académicos a nivel nacional",
+      "La participación activa de la iniciativa privada en la educación pública"
+    ],
+    correcta: 0,
+    justificacion: "El Art. 57 establece como fundamento principal el respeto a la dignidad humana y la igualdad sustantiva, en el marco del enfoque de derechos humanos que debe orientar toda la educación destinada a niñas, niños y adolescentes."
+  },
+  {
+    tipo: "Completamiento",
+    articulo: "Art. 57",
+    base: "De acuerdo con el Artículo 57, cuando la disciplina escolar no respeta la dignidad humana y se aplican tratos humillantes a los estudiantes, esto constituye una violación al…",
+    extra: null,
+    opciones: [
+      "…reglamento interno de la institución educativa solamente.",
+      "…derecho fundamental de niñas, niños y adolescentes a la educación.",
+      "…código de ética exclusivo del personal administrativo escolar."
+    ],
+    correcta: 1,
+    justificacion: "El Art. 57 protege el derecho fundamental a la educación de niñas, niños y adolescentes. Aplicar tratos humillantes viola ese derecho, que exige que la disciplina sea compatible con la dignidad humana y los derechos humanos."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 57",
+    base: "Un docente que implementa medidas de exclusión hacia estudiantes con discapacidad en actividades académicas, ¿qué principio del Artículo 57 está vulnerando?",
+    extra: null,
+    opciones: [
+      "El principio de gratuidad de la educación pública obligatoria",
+      "El principio de gestión escolar participativa",
+      "El principio de inclusión y no discriminación"
+    ],
+    correcta: 2,
+    justificacion: "El Art. 57 garantiza la plena inclusión y no discriminación de estudiantes con discapacidad. Excluirlos de actividades académicas viola directamente este principio, que obliga a tomar acciones afirmativas para su participación plena."
+  },
+
+  /* ─── ARTÍCULO 58 ─── */
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 58",
+    base: "¿Cuál es uno de los propósitos fundamentales de la educación según el Artículo 58 de la LGDNNA en relación con el desarrollo del estudiante?",
+    extra: null,
+    opciones: [
+      "Desarrollar la personalidad, aptitudes y potencial, fomentando el respeto a la propia identidad",
+      "Incrementar la productividad económica del país a través del capital humano formado",
+      "Garantizar la homogeneidad cultural y lingüística en todo el sistema educativo nacional"
+    ],
+    correcta: 0,
+    justificacion: "El Art. 58 establece que el desarrollo integral es un fin educativo central, el cual busca desarrollar la personalidad, las aptitudes y el potencial de los estudiantes, fomentando siempre el respeto a su propia identidad."
+  },
+  {
+    tipo: "Completamiento",
+    articulo: "Art. 58",
+    base: "El Artículo 58 señala que la educación debe fomentar valores fundamentales, la cultura de la legalidad, la paz, la no violencia y…",
+    extra: null,
+    opciones: [
+      "…la competencia académica entre las distintas instituciones educativas del país.",
+      "…la educación cívica como parte de los valores a desarrollar en los estudiantes.",
+      "…el dominio obligatorio de habilidades tecnológicas avanzadas desde la infancia."
+    ],
+    correcta: 1,
+    justificacion: "El Art. 58 incluye la educación cívica junto a la cultura de la legalidad, la paz y la no violencia como valores fundamentales que la educación debe fomentar en niñas, niños y adolescentes."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 58",
+    base: "Según el Artículo 58, ¿qué aspecto relacionado con la salud debe contemplar obligatoriamente la educación impartida a niñas, niños y adolescentes?",
+    extra: null,
+    opciones: [
+      "Pruebas físicas periódicas para detectar y tratar enfermedades crónicas en los alumnos",
+      "Vacunación obligatoria en los planteles como condición de permanencia escolar",
+      "Orientación sobre educación sexual integral acorde a su madurez y prevención de adicciones"
+    ],
+    correcta: 2,
+    justificacion: "El Art. 58 establece dentro del eje de prevención y salud que la educación debe orientar sobre educación sexual integral acorde a la madurez de los estudiantes, prevenir el delito y las adicciones, y apoyar a víctimas de maltrato."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 58",
+    base: "¿Cuál de los siguientes fines educativos está directamente relacionado con el cuidado del entorno natural, de acuerdo con el Artículo 58 de la LGDNNA?",
+    extra: null,
+    opciones: [
+      "Inculcar el respeto al medio ambiente y la adopción de estilos de vida sustentables",
+      "Promover la industrialización responsable dentro de las comunidades escolares locales",
+      "Priorizar el aprovechamiento eficiente de los recursos naturales con fines productivos"
+    ],
+    correcta: 0,
+    justificacion: "El Art. 58 contempla la conciencia ambiental como fin educativo, indicando que la educación debe inculcar el respeto al medio ambiente, la adopción de estilos de vida sustentables y la procuración del bienestar de los animales."
+  },
+  {
+    tipo: "Relación de elementos",
+    articulo: "Art. 58",
+    base: "Seleccione la opción que relacione correctamente cada fin educativo del Artículo 58 con su descripción.",
+    extra: {
+      tipo: "relacion",
+      col1: { titulo: "Fin educativo", items: ["1. Desarrollo integral", "2. Cultura de paz", "3. Prevención y salud"] },
+      col2: { titulo: "Descripción", items: [
+        "a) Orientar sobre educación sexual integral y prevenir adicciones",
+        "b) Desarrollar la personalidad, aptitudes y potencial del estudiante",
+        "c) Fomentar la no violencia, la legalidad y la educación cívica"
+      ]}
+    },
+    opciones: ["1c, 2a, 3b", "1b, 2c, 3a", "1a, 2b, 3c"],
+    correcta: 1,
+    justificacion: "El desarrollo integral (1) busca desarrollar personalidad y potencial (b); la cultura de paz (2) fomenta la no violencia y civismo (c); y la prevención y salud (3) incluye educación sexual y prevención de adicciones (a). Así lo establece el Art. 58."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 58",
+    base: "En una escuela secundaria, el director propone actividades de reciclaje, huertos escolares y cuidado de animales. ¿Qué fin educativo del Artículo 58 se está promoviendo?",
+    extra: null,
+    opciones: [
+      "La formación para la cultura de la legalidad y el civismo escolar",
+      "La conciencia ambiental y los estilos de vida sustentables",
+      "El desarrollo de aptitudes técnicas para la vida laboral futura"
+    ],
+    correcta: 1,
+    justificacion: "El Art. 58 establece la conciencia ambiental como fin educativo, que incluye el respeto al medio ambiente, los estilos de vida sustentables y el bienestar de los animales. Las actividades descritas responden directamente a ese fin."
+  },
+  {
+    tipo: "Completamiento",
+    articulo: "Art. 58",
+    base: "De acuerdo con el Artículo 58, la educación también debe apoyar a quienes son víctimas de maltrato, lo que implica que las instituciones educativas deben…",
+    extra: null,
+    opciones: [
+      "…brindar atención y protección a estudiantes en situación de vulnerabilidad.",
+      "…denunciar únicamente a los agresores ante las autoridades penales competentes.",
+      "…separar temporalmente al estudiante afectado del grupo escolar como medida de seguridad."
+    ],
+    correcta: 0,
+    justificacion: "El Art. 58 señala que la educación debe apoyar a quienes son víctimas de maltrato, lo que implica que las instituciones deben brindar atención y protección a los estudiantes en situación de vulnerabilidad, no solo canalizar legalmente."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 58",
+    base: "¿Cuál de los siguientes escenarios ejemplifica mejor el fin educativo de 'cultura de paz' establecido en el Artículo 58 de la LGDNNA?",
+    extra: null,
+    opciones: [
+      "Una escuela que premia a los estudiantes con mejores calificaciones con reconocimientos públicos",
+      "Un plantel que implementa torneos deportivos competitivos entre los distintos grupos escolares",
+      "Una institución que promueve la resolución pacífica de conflictos y el diálogo entre estudiantes"
+    ],
+    correcta: 2,
+    justificacion: "El Art. 58 define la cultura de paz como fomento de la no violencia y la legalidad. Una institución que promueve la resolución pacífica de conflictos y el diálogo materializa exactamente este fin educativo."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 58",
+    base: "Según el Artículo 58 de la LGDNNA, ¿qué valor educativo está directamente vinculado con la procuración del bienestar de los animales?",
+    extra: null,
+    opciones: [
+      "El respeto a todas las formas de vida y la conciencia ambiental",
+      "La responsabilidad económica en el manejo de recursos naturales productivos",
+      "La formación técnica en veterinaria y ciencias naturales aplicadas"
+    ],
+    correcta: 0,
+    justificacion: "El Art. 58 vincula el bienestar de los animales al fin educativo de conciencia ambiental, que implica el respeto al medio ambiente y a todas las formas de vida como parte de la adopción de estilos de vida sustentables."
+  },
+  {
+    tipo: "Completamiento",
+    articulo: "Art. 58",
+    base: "El Artículo 58 señala que la educación debe fomentar el respeto a la propia identidad del estudiante, lo cual implica que las prácticas educativas deben…",
+    extra: null,
+    opciones: [
+      "…homogeneizar las costumbres y valores de todos los alumnos en el aula.",
+      "…reconocer y valorar la diversidad cultural, lingüística y personal de cada estudiante.",
+      "…limitar las expresiones individuales que difieran de los valores institucionales establecidos."
+    ],
+    correcta: 1,
+    justificacion: "El Art. 58 establece que el desarrollo integral incluye fomentar el respeto a la propia identidad. Esto implica que las prácticas educativas deben reconocer y valorar la diversidad, nunca homogeneizar ni suprimir la identidad individual."
+  },
+
+  /* ─── ARTÍCULO 59 ─── */
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 59",
+    base: "De acuerdo con el Artículo 59 de la LGDNNA, ¿cuál es la responsabilidad primaria de las autoridades e instituciones educativas ante el acoso escolar?",
+    extra: null,
+    opciones: [
+      "Mediar únicamente cuando los padres presentan una queja formal por escrito",
+      "Sancionar económicamente a los estudiantes agresores y a sus familias",
+      "Diseñar estrategias para detectar, prevenir y erradicar el acoso escolar en todas sus manifestaciones"
+    ],
+    correcta: 2,
+    justificacion: "El Art. 59 establece que las autoridades e instituciones educativas deben diseñar estrategias para detectar, prevenir y erradicar el acoso o violencia escolar (bullying) en todas sus manifestaciones. Esta es una obligación activa, no reactiva."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 59",
+    base: "¿Qué tipo de mecanismos deben existir de manera permanente en las instituciones educativas, según el Artículo 59 de la LGDNNA?",
+    extra: null,
+    opciones: [
+      "Mecanismos de mediación y atención gratuita para menores involucrados en situaciones de violencia",
+      "Mecanismos de vigilancia electrónica en todos los espacios físicos escolares",
+      "Mecanismos de selección y clasificación de estudiantes según su historial conductual"
+    ],
+    correcta: 0,
+    justificacion: "El Art. 59 señala que deben existir mecanismos permanentes de mediación y se debe proveer atención, asesoría y protección gratuita a los menores involucrados en situaciones de violencia escolar."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 59",
+    base: "Según el Artículo 59, ¿qué consecuencia debe enfrentar el personal docente que propicie, tolere o no denuncie actos de violencia escolar?",
+    extra: null,
+    opciones: [
+      "Una llamada de atención verbal por parte del director del plantel educativo",
+      "Sanciones establecidas en el marco legal aplicable",
+      "La obligación de realizar cursos adicionales de actualización pedagógica únicamente"
+    ],
+    correcta: 1,
+    justificacion: "El Art. 59 establece expresamente que quienes propicien, toleren o no denuncien actos de violencia escolar deben ser sancionados conforme al marco legal aplicable, lo que implica consecuencias formales y no solo administrativas internas."
+  },
+  {
+    tipo: "Completamiento",
+    articulo: "Art. 59",
+    base: "El Artículo 59 establece que el personal docente debe ser capacitado en igualdad de género y cultura de paz con el objetivo de…",
+    extra: null,
+    opciones: [
+      "…mejorar los indicadores de rendimiento académico en evaluaciones nacionales.",
+      "…diseñar actividades extracurriculares para la integración escolar de los alumnos.",
+      "…contribuir activamente a la erradicación de la violencia y el acoso escolar."
+    ],
+    correcta: 2,
+    justificacion: "El Art. 59 vincula la capacitación docente en igualdad de género y cultura de paz directamente con el objetivo de prevenir y erradicar la violencia escolar. Los docentes son agentes clave en la construcción de ambientes escolares seguros."
+  },
+  {
+    tipo: "Ordenamiento",
+    articulo: "Art. 59",
+    base: "Ordene las acciones que debe seguir una institución educativa ante la detección de un caso de acoso escolar, según el espíritu del Artículo 59 de la LGDNNA.",
+    extra: {
+      tipo: "orden",
+      pasos: [
+        "1. Activar los mecanismos de mediación disponibles en la institución",
+        "2. Detectar la situación de acoso entre los estudiantes del plantel",
+        "3. Brindar atención y asesoría gratuita a los menores involucrados",
+        "4. Aplicar sanciones a quienes propiciaron o toleraron la situación",
+        "5. Diseñar estrategias preventivas para evitar nuevos casos de acoso"
+      ]
+    },
+    opciones: ["2, 1, 3, 4, 5", "1, 3, 2, 5, 4", "3, 2, 4, 1, 5"],
+    correcta: 0,
+    justificacion: "La secuencia correcta es: primero detectar (2), luego activar la mediación (1), brindar atención gratuita (3), aplicar sanciones (4) y finalmente diseñar estrategias preventivas (5). Esto refleja la lógica integral del Art. 59."
+  },
+  {
+    tipo: "Relación de elementos",
+    articulo: "Art. 59",
+    base: "Seleccione la opción que relacione correctamente cada obligación del Artículo 59 con el actor principal que la ejecuta.",
+    extra: {
+      tipo: "relacion",
+      col1: { titulo: "Obligación", items: ["1. Diseñar estrategias contra el acoso", "2. Recibir capacitación en igualdad de género", "3. Recibir atención y protección gratuita"] },
+      col2: { titulo: "Actor", items: [
+        "a) El personal docente de las instituciones",
+        "b) Las autoridades e instituciones educativas",
+        "c) Los menores involucrados en situaciones de violencia"
+      ]}
+    },
+    opciones: ["1a, 2b, 3c", "1b, 2a, 3c", "1c, 2a, 3b"],
+    correcta: 1,
+    justificacion: "Diseñar estrategias (1) es responsabilidad de autoridades e instituciones (b); recibir capacitación (2) corresponde al personal docente (a); y la atención gratuita (3) está destinada a los menores afectados (c). Así lo indica el Art. 59."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 59",
+    base: "Un maestro observa que un estudiante es constantemente ridiculizado y excluido por sus compañeros, pero no interviene ni lo reporta. Según el Artículo 59, ¿cómo se considera esta actitud?",
+    extra: null,
+    opciones: [
+      "Una decisión pedagógica válida si el docente considera que los alumnos deben resolver sus conflictos",
+      "Una omisión menor que puede resolverse en la próxima reunión del Consejo Técnico Escolar",
+      "Una falta grave que puede derivar en sanciones, al tolerar y no denunciar actos de violencia escolar"
+    ],
+    correcta: 2,
+    justificacion: "El Art. 59 establece sanciones para quienes propicien, toleren o no denuncien actos de violencia. No intervenir ni reportar constituye una omisión punible, independientemente de la justificación pedagógica que se alegue."
+  },
+  {
+    tipo: "Completamiento",
+    articulo: "Art. 59",
+    base: "De acuerdo con el Artículo 59, el acoso o violencia escolar (bullying) debe ser erradicado en…",
+    extra: null,
+    opciones: [
+      "…todas sus manifestaciones, incluyendo la violencia física, verbal, psicológica y digital.",
+      "…los casos que sean reportados formalmente por los padres de familia ante la dirección.",
+      "…los espacios físicos de la escuela exclusivamente durante el horario escolar oficial."
+    ],
+    correcta: 0,
+    justificacion: "El Art. 59 exige erradicar el acoso o violencia escolar en todas sus manifestaciones. Esto incluye cualquier forma: física, verbal, psicológica o digital, sin limitarla a horarios, espacios físicos ni a la formalidad de las denuncias."
+  },
+  {
+    tipo: "Ordenamiento",
+    articulo: "Art. 59",
+    base: "Ordene los componentes de la estrategia integral que establece el Artículo 59 para garantizar ambientes escolares libres de violencia, del más preventivo al más correctivo.",
+    extra: {
+      tipo: "orden",
+      pasos: [
+        "1. Aplicación de sanciones a quienes propicien o toleren la violencia",
+        "2. Capacitación docente en igualdad de género y cultura de paz",
+        "3. Diseño de estrategias de detección y prevención del acoso",
+        "4. Provisión de mecanismos permanentes de mediación escolar",
+        "5. Atención y asesoría gratuita a los menores afectados"
+      ]
+    },
+    opciones: ["1, 2, 3, 4, 5", "3, 4, 5, 2, 1", "2, 5, 4, 3, 1"],
+    correcta: 1,
+    justificacion: "La secuencia preventiva a correctiva es: diseñar estrategias preventivas (3), tener mecanismos de mediación (4), brindar atención a afectados (5), capacitar a docentes (2) y finalmente aplicar sanciones (1). Así responde al espíritu del Art. 59."
+  },
+  {
+    tipo: "Cuestionamiento directo",
+    articulo: "Art. 59",
+    base: "¿Cuál de los siguientes enunciados refleja más fielmente el objetivo central del Artículo 59 de la LGDNNA?",
+    extra: null,
+    opciones: [
+      "Establecer un sistema punitivo estricto dirigido exclusivamente a los estudiantes con conductas agresivas",
+      "Regular únicamente los mecanismos formales de denuncia penal en casos de violencia escolar",
+      "Garantizar ambientes escolares libres de violencia mediante estrategias integrales de prevención, atención, mediación y sanción"
+    ],
+    correcta: 2,
+    justificacion: "El Art. 59 tiene un enfoque integral: abarca la detección, prevención, mediación, atención gratuita y sanción. No se limita al castigo ni a la denuncia formal, sino que construye un sistema completo para garantizar entornos escolares seguros."
+  }
+];
+
+/* ===== ESTADO ===== */
+let currentQ = 0;
+let aciertos = 0;
+let errores  = 0;
+let answered = false;
+let studentName = "";
+
+/* ===== NAVEGACIÓN ===== */
+function showPanel(panel) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  event.target.classList.add('active');
+}
+
+/* ===== INICIAR ===== */
+function iniciarSimulador() {
+  const name = document.getElementById('student-name').value.trim();
+  if (!name) {
+    const input = document.getElementById('student-name');
+    input.style.borderColor = '#ef4444';
+    input.placeholder = '⚠️ Ingresa tu nombre para continuar';
+    input.focus();
+    setTimeout(() => { input.style.borderColor = ''; input.placeholder = 'Ej. María González López'; }, 2500);
+    return;
+  }
+  studentName = name;
+  currentQ = 0; aciertos = 0; errores = 0;
+  document.getElementById('screen-welcome').style.display = 'none';
+  document.getElementById('screen-quiz').style.display = 'block';
+  renderPregunta();
+}
+
+/* ===== RENDER PREGUNTA ===== */
+function renderPregunta() {
+  answered = false;
+  const q = preguntas[currentQ];
+  const total = preguntas.length;
+  const done  = currentQ;
+  const pct   = Math.round((done / total) * 100);
+
+  // progress
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = `Pregunta ${currentQ + 1} de ${total}`;
+  document.getElementById('prog-pct').textContent   = pct + '%';
+
+  // stats
+  document.getElementById('stat-restantes').textContent = total - done;
+  document.getElementById('stat-aciertos').textContent  = aciertos;
+  document.getElementById('stat-errores').textContent   = errores;
+
+  // badges
+  document.getElementById('q-tipo-badge').textContent = q.tipo;
+  document.getElementById('q-art-badge').textContent  = q.articulo;
+  document.getElementById('q-number-label').textContent = `Pregunta ${currentQ + 1}`;
+
+  // text
+  document.getElementById('q-text').textContent = q.base;
+
+  // extra
+  const extraEl = document.getElementById('q-extra');
+  extraEl.innerHTML = '';
+  if (q.extra) {
+    if (q.extra.tipo === 'relacion') {
+      const tbl = document.createElement('div');
+      tbl.className = 'relation-table';
+      ['col1','col2'].forEach(col => {
+        const div = document.createElement('div');
+        div.className = 'relation-col';
+        const h = document.createElement('h4');
+        h.textContent = q.extra[col].titulo;
+        const ul = document.createElement('ul');
+        q.extra[col].items.forEach(item => {
+          const li = document.createElement('li'); li.textContent = item; ul.appendChild(li);
+        });
+        div.appendChild(h); div.appendChild(ul); tbl.appendChild(div);
+      });
+      extraEl.appendChild(tbl);
+    } else if (q.extra.tipo === 'orden') {
+      const ul = document.createElement('ul');
+      ul.className = 'order-list';
+      q.extra.pasos.forEach((paso, i) => {
+        const li = document.createElement('li');
+        const num = document.createElement('span');
+        num.className = 'order-num'; num.textContent = i+1;
+        li.appendChild(num);
+        const txt = document.createTextNode(paso.slice(3));
+        li.appendChild(txt);
+        ul.appendChild(li);
+      });
+      extraEl.appendChild(ul);
+    }
+  }
+
+  // options
+  const ol = document.getElementById('options-list');
+  ol.innerHTML = '';
+  const letters = ['A','B','C'];
+  q.opciones.forEach((op, i) => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${op}</span>`;
+    btn.onclick = () => seleccionar(i);
+    li.appendChild(btn);
+    ol.appendChild(li);
+  });
+
+  // feedback reset
+  const fb = document.getElementById('feedback-box');
+  fb.className = 'feedback-box';
+  fb.textContent = '';
+
+  // next btn
+  const btnNext = document.getElementById('btn-next');
+  btnNext.classList.remove('visible');
+  btnNext.textContent = currentQ === preguntas.length - 1 ? 'Ver resultados →' : 'Siguiente →';
+
+  // animate card
+  const card = document.getElementById('question-card');
+  card.style.animation = 'none';
+  requestAnimationFrame(() => { card.style.animation = 'fadeUp .35s ease both'; });
+}
+
+/* ===== SELECCIONAR ===== */
+function seleccionar(idx) {
+  if (answered) return;
+  answered = true;
+  const q = preguntas[currentQ];
+  const btns = document.querySelectorAll('.option-btn');
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correcta) btn.classList.add('correct');
+    else if (i === idx && idx !== q.correcta) btn.classList.add('wrong');
+  });
+  btns[idx].classList.add('selected');
+
+  const fb = document.getElementById('feedback-box');
+  if (idx === q.correcta) {
+    aciertos++;
+    fb.className = 'feedback-box correct-fb';
+    const msgs = ['¡Excelente! Respuesta correcta. ✅', '¡Muy bien! Lo lograste. ✅', '¡Correcto! Sigue así. ✅', '¡Perfecto! Respuesta acertada. ✅'];
+    fb.innerHTML = `<strong>${msgs[Math.floor(Math.random()*msgs.length)]}</strong><br>${q.justificacion}`;
+  } else {
+    errores++;
+    fb.className = 'feedback-box wrong-fb';
+    const letters = ['A','B','C'];
+    fb.innerHTML = `<strong>❌ Respuesta incorrecta.</strong> La opción correcta es la <strong>${letters[q.correcta]}</strong>.<br>${q.justificacion}`;
+  }
+
+  document.getElementById('stat-aciertos').textContent = aciertos;
+  document.getElementById('stat-errores').textContent  = errores;
+  document.getElementById('btn-next').classList.add('visible');
+}
+
+/* ===== SIGUIENTE ===== */
+function siguientePregunta() {
+  currentQ++;
+  if (currentQ >= preguntas.length) {
+    mostrarResultados();
+  } else {
+    renderPregunta();
+  }
+}
+
+/* ===== RESULTADOS ===== */
+function mostrarResultados() {
+  document.getElementById('screen-quiz').style.display    = 'none';
+  document.getElementById('screen-results').style.display = 'block';
+
+  const pct = Math.round((aciertos / preguntas.length) * 100);
+  document.getElementById('results-name').textContent   = studentName;
+  document.getElementById('r-aciertos').textContent     = aciertos;
+  document.getElementById('r-errores').textContent      = errores;
+  document.getElementById('score-pct-val').textContent  = pct + '%';
+  document.getElementById('score-circle').style.setProperty('--pct', pct);
+
+  // trophy
+  let trophy = pct >= 90 ? '🏆' : pct >= 70 ? '🥇' : pct >= 50 ? '🥈' : '📚';
+  document.getElementById('results-trophy').textContent = trophy;
+
+  // motivator
+  let msg = '';
+  if (pct === 100) msg = '¡Perfección absoluta! Dominas a la perfección los Artículos 57, 58 y 59 de la LGDNNA. ¡Felicitaciones!';
+  else if (pct >= 90) msg = '¡Excelente desempeño! Tienes un dominio sólido de la LGDNNA. Solo perfecciona los detalles y serás imparable.';
+  else if (pct >= 80) msg = '¡Muy buen trabajo, ' + studentName.split(' ')[0] + '! Estás muy cerca de la excelencia. Revisa los reactivos fallidos y consolida tu aprendizaje.';
+  else if (pct >= 70) msg = 'Buen trabajo. Tienes bases sólidas sobre la LGDNNA. Sigue practicando para fortalecer y afianzar tus conocimientos.';
+  else if (pct >= 50) msg = 'Vas por buen camino, ' + studentName.split(' ')[0] + '. Revisa la Guía de Estudio y vuelve a intentarlo. ¡Tú puedes superarlo!';
+  else msg = 'No te desanimes, ' + studentName.split(' ')[0] + '. Consulta la Guía de Estudio, repasa los Artículos 57, 58 y 59 y vuelve a intentarlo. ¡El aprendizaje es un proceso!';
+  document.getElementById('motivator-msg').textContent = msg;
+}
+
+/* ===== REINICIAR ===== */
+function reiniciar() {
+  currentQ = 0; aciertos = 0; errores = 0;
+  document.getElementById('screen-results').style.display = 'none';
+  document.getElementById('screen-welcome').style.display = 'block';
+  document.getElementById('student-name').value = studentName;
+}
+</script>
+</body>
+</html>
