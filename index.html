@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plataforma Educativa Media Superior 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary:      #4f73c9;
+      --violet:       #8b6ee8;
+      --cyan:         #38bdf8;
+      --emerald:      #34d399;
+      --amber:        #fbbf24;
+      --rose:         #fb7185;
+      --sky:          #7dd3fc;
+      --teal:         #2dd4bf;
+      --indigo:       #818cf8;
+      --bg:           #eef2ff;
+      --glass:        rgba(255,255,255,0.70);
+      --glass-border: rgba(99,102,241,0.18);
+      --text:         #1e293b;
+      --text-2:       #475569;
+      --text-3:       #94a3b8;
+      --shadow-sm:    0 2px 12px rgba(79,115,201,0.10);
+      --shadow-md:    0 8px 30px rgba(79,115,201,0.15);
+      --shadow-lg:    0 20px 60px rgba(79,115,201,0.22);
+      --radius:       20px;
+      --radius-sm:    12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── FONDO ── */
+    .bg-orbs { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+    .orb { position: absolute; border-radius: 50%; filter: blur(72px); opacity: 0.42; animation: orbFloat linear infinite; }
+    .orb-1 { width:520px; height:520px; background:rgba(99,102,241,0.25); top:-120px; left:-100px; animation-duration:22s; }
+    .orb-2 { width:400px; height:400px; background:rgba(56,189,248,0.20); top:30%; right:-80px; animation-duration:28s; animation-delay:-8s; }
+    .orb-3 { width:350px; height:350px; background:rgba(139,110,232,0.18); bottom:-80px; left:20%; animation-duration:18s; animation-delay:-14s; }
+    .orb-4 { width:280px; height:280px; background:rgba(52,211,153,0.15); bottom:20%; right:10%; animation-duration:24s; animation-delay:-6s; }
+    @keyframes orbFloat {
+      0%   { transform: translateY(0)   scale(1);    }
+      33%  { transform: translateY(-30px) scale(1.04); }
+      66%  { transform: translateY(20px)  scale(0.97); }
+      100% { transform: translateY(0)   scale(1);    }
+    }
+
+    /* ── CANVAS PARTÍCULAS ── */
+    #pc { position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:0.5; }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 68px; padding: 0 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(20px) saturate(1.8);
+      -webkit-backdrop-filter: blur(20px) saturate(1.8);
+      border-bottom: 1px solid var(--glass-border);
+      box-shadow: 0 2px 20px rgba(79,115,201,0.07);
+      transition: background 0.3s;
+    }
+    .nav-logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    .nav-logo-icon {
+      width:38px; height:38px; border-radius:10px;
+      background:linear-gradient(135deg,var(--primary),var(--violet));
+      display:flex; align-items:center; justify-content:center; font-size:18px;
+      box-shadow:0 4px 14px rgba(79,115,201,0.35);
+    }
+    .nav-logo-text { font-family:'Montserrat',sans-serif; font-weight:700; font-size:0.9rem; color:var(--text); line-height:1.2; }
+    .nav-logo-text span { color:var(--primary); }
+    .nav-links { display:flex; align-items:center; gap:26px; }
+    .nav-link { font-size:0.84rem; font-weight:500; color:var(--text-2); text-decoration:none; transition:color 0.2s; }
+    .nav-link:hover { color:var(--primary); }
+    .nav-cta {
+      background:linear-gradient(135deg,var(--primary),var(--violet));
+      color:#fff; border:none; padding:9px 22px; border-radius:50px;
+      font-size:0.82rem; font-weight:600; cursor:pointer; text-decoration:none;
+      box-shadow:0 4px 14px rgba(79,115,201,0.35);
+      transition:transform 0.2s, box-shadow 0.2s; font-family:'Poppins',sans-serif;
+    }
+    .nav-cta:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(79,115,201,0.45); }
+    .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; }
+    .hamburger span { display:block; width:24px; height:2.5px; background:var(--text); border-radius:2px; }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 130px 5% 80px; min-height: 100vh;
+      display:flex; align-items:center; position:relative;
+    }
+    .hero-inner {
+      max-width:1100px; margin:0 auto; width:100%;
+      display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;
+    }
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:8px;
+      background:rgba(79,115,201,0.11); border:1px solid rgba(79,115,201,0.22);
+      color:var(--primary); padding:6px 18px; border-radius:50px;
+      font-size:0.75rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+      margin-bottom:20px; animation:fadeUp 0.6s ease both;
+    }
+    .badge-dot { width:7px; height:7px; border-radius:50%; background:var(--primary); animation:pulse 2s ease infinite; }
+    .hero-title {
+      font-family:'Montserrat',sans-serif; font-weight:900;
+      font-size:clamp(1.9rem,3.8vw,3.3rem); line-height:1.08;
+      color:var(--text); margin-bottom:20px; animation:fadeUp 0.7s ease 0.1s both;
+    }
+    .hl1 { background:linear-gradient(135deg,var(--primary),var(--violet)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .hl2 { background:linear-gradient(135deg,var(--cyan),var(--emerald)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .hero-sub {
+      font-size:1rem; color:var(--text-2); line-height:1.75; max-width:480px;
+      margin-bottom:34px; animation:fadeUp 0.7s ease 0.2s both;
+    }
+    .hero-btns { display:flex; gap:14px; flex-wrap:wrap; animation:fadeUp 0.7s ease 0.3s both; }
+    .btn-prim {
+      background:linear-gradient(135deg,var(--primary),var(--violet)); color:#fff; border:none;
+      padding:13px 30px; border-radius:50px; font-size:0.93rem; font-weight:600;
+      cursor:pointer; text-decoration:none; box-shadow:0 6px 24px rgba(79,115,201,0.38);
+      transition:transform 0.25s, box-shadow 0.25s; font-family:'Poppins',sans-serif;
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    .btn-prim:hover { transform:translateY(-3px); box-shadow:0 10px 30px rgba(79,115,201,0.50); }
+    .btn-ghost {
+      background:var(--glass); color:var(--text); border:1.5px solid var(--glass-border);
+      padding:13px 30px; border-radius:50px; font-size:0.93rem; font-weight:600;
+      cursor:pointer; text-decoration:none; backdrop-filter:blur(10px);
+      transition:transform 0.25s, background 0.25s; font-family:'Poppins',sans-serif;
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    .btn-ghost:hover { transform:translateY(-3px); background:rgba(255,255,255,0.88); }
+
+    /* Stat cards hero */
+    .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; animation:fadeUp 0.8s ease 0.2s both; }
+    .stat-card {
+      background:var(--glass); backdrop-filter:blur(16px) saturate(1.6);
+      border:1px solid var(--glass-border); border-radius:var(--radius);
+      padding:22px; box-shadow:var(--shadow-sm);
+      transition:transform 0.3s, box-shadow 0.3s;
+    }
+    .stat-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); }
+    .stat-card.accent { background:linear-gradient(135deg,var(--primary),var(--violet)); }
+    .stat-card.accent .sn, .stat-card.accent .sl { color:#fff; }
+    .si { font-size:26px; margin-bottom:10px; display:block; }
+    .sn { font-family:'Montserrat',sans-serif; font-weight:800; font-size:1.9rem; color:var(--primary); line-height:1; margin-bottom:4px; }
+    .sl { font-size:0.74rem; font-weight:500; color:var(--text-2); text-transform:uppercase; letter-spacing:0.05em; }
+
+    /* ── SECCIONES ── */
+    .section { padding:90px 5%; }
+    .sec-hd { text-align:center; max-width:640px; margin:0 auto 56px; }
+    .sec-lbl {
+      display:inline-block; background:rgba(79,115,201,0.10); color:var(--primary);
+      border:1px solid rgba(79,115,201,0.18); padding:5px 18px; border-radius:50px;
+      font-size:0.72rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:14px;
+    }
+    .sec-title {
+      font-family:'Montserrat',sans-serif; font-weight:800;
+      font-size:clamp(1.55rem,2.8vw,2.3rem); color:var(--text); line-height:1.2; margin-bottom:12px;
+    }
+    .sec-title .hl { background:linear-gradient(135deg,var(--primary),var(--violet)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .sec-desc { font-size:0.97rem; color:var(--text-2); line-height:1.7; }
+
+    /* ── GRID TARJETAS ── */
+    .cards-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr));
+      gap:24px; max-width:1100px; margin:0 auto;
+    }
+
+    /* Tarjeta simulador */
+    .sim-card {
+      background:var(--glass);
+      backdrop-filter:blur(18px) saturate(1.6);
+      -webkit-backdrop-filter:blur(18px) saturate(1.6);
+      border:1px solid var(--glass-border);
+      border-radius:var(--radius);
+      padding:28px;
+      display:flex; flex-direction:column;
+      box-shadow:var(--shadow-sm);
+      position:relative; overflow:hidden;
+      transition:transform 0.32s cubic-bezier(.22,.68,0,1.2), box-shadow 0.32s;
+    }
+    .sim-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:var(--accent-grad, linear-gradient(90deg,var(--primary),var(--violet)));
+      border-radius:var(--radius) var(--radius) 0 0;
+    }
+    .sim-card:hover { transform:translateY(-8px) scale(1.01); box-shadow:var(--shadow-lg); }
+
+    .card-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:18px; }
+    .card-icon {
+      width:52px; height:52px; border-radius:14px;
+      display:flex; align-items:center; justify-content:center; font-size:24px;
+      background:var(--icon-bg, rgba(79,115,201,0.11)); flex-shrink:0;
+    }
+    .card-badge {
+      font-size:0.68rem; font-weight:600; letter-spacing:0.05em; text-transform:uppercase;
+      padding:4px 11px; border-radius:50px;
+      background:rgba(79,115,201,0.09); color:var(--primary); border:1px solid rgba(79,115,201,0.16);
+    }
+    .card-name {
+      font-family:'Montserrat',sans-serif; font-weight:800; font-size:1.04rem;
+      color:var(--text); line-height:1.25; margin-bottom:8px;
+    }
+    .card-desc { font-size:0.81rem; color:var(--text-2); line-height:1.65; margin-bottom:22px; flex:1; }
+    .card-foot { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .card-meta { display:flex; align-items:center; gap:5px; font-size:0.73rem; color:var(--text-3); }
+
+    .acc-btn {
+      display:inline-flex; align-items:center; gap:7px;
+      background:linear-gradient(135deg,var(--primary),var(--violet));
+      color:#fff; text-decoration:none;
+      padding:9px 20px; border-radius:50px;
+      font-size:0.79rem; font-weight:600;
+      box-shadow:0 4px 14px rgba(79,115,201,0.28);
+      transition:transform 0.22s, box-shadow 0.22s;
+      white-space:nowrap;
+    }
+    .acc-btn:hover { transform:translateY(-2px) scale(1.04); box-shadow:0 6px 20px rgba(79,115,201,0.44); }
+    .acc-btn svg { transition:transform 0.2s; }
+    .acc-btn:hover svg { transform:translateX(3px); }
+
+    /* Variantes de color */
+    .c-blue   { --accent-grad:linear-gradient(90deg,#4f73c9,#818cf8); --icon-bg:rgba(79,115,201,0.11); }
+    .c-violet { --accent-grad:linear-gradient(90deg,#8b6ee8,#c084fc); --icon-bg:rgba(139,110,232,0.11); }
+    .c-cyan   { --accent-grad:linear-gradient(90deg,#38bdf8,#22d3ee); --icon-bg:rgba(56,189,248,0.11); }
+    .c-emerald{ --accent-grad:linear-gradient(90deg,#34d399,#2dd4bf); --icon-bg:rgba(52,211,153,0.11); }
+    .c-amber  { --accent-grad:linear-gradient(90deg,#fbbf24,#f59e0b); --icon-bg:rgba(251,191,36,0.11); }
+    .c-rose   { --accent-grad:linear-gradient(90deg,#fb7185,#f43f5e); --icon-bg:rgba(251,113,133,0.11); }
+    .c-indigo { --accent-grad:linear-gradient(90deg,#818cf8,#6366f1); --icon-bg:rgba(129,140,248,0.11); }
+    .c-teal   { --accent-grad:linear-gradient(90deg,#2dd4bf,#14b8a6); --icon-bg:rgba(45,212,191,0.11); }
+    .c-sky    { --accent-grad:linear-gradient(90deg,#7dd3fc,#38bdf8); --icon-bg:rgba(125,211,252,0.11); }
+
+    /* ── CARACTERÍSTICAS ── */
+    .feat-grid {
+      max-width:1100px; margin:0 auto;
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:18px;
+    }
+    .feat-card {
+      background:var(--glass); backdrop-filter:blur(14px);
+      border:1px solid var(--glass-border); border-radius:var(--radius-sm);
+      padding:24px; transition:transform 0.28s, box-shadow 0.28s;
+    }
+    .feat-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); }
+    .feat-icon { font-size:28px; margin-bottom:12px; display:block; }
+    .feat-title { font-family:'Montserrat',sans-serif; font-weight:700; font-size:0.93rem; color:var(--text); margin-bottom:6px; }
+    .feat-desc { font-size:0.79rem; color:var(--text-2); line-height:1.6; }
+
+    /* ── AVISO ── */
+    .notice-wrap { padding:0 5% 90px; }
+    .notice-box {
+      max-width:1100px; margin:0 auto;
+      background:var(--glass); backdrop-filter:blur(16px);
+      border:1px solid var(--glass-border); border-radius:var(--radius);
+      padding:38px 46px; display:grid; grid-template-columns:auto 1fr;
+      gap:30px; align-items:center; box-shadow:var(--shadow-md);
+    }
+    .notice-icon {
+      width:68px; height:68px;
+      background:linear-gradient(135deg,var(--primary),var(--violet));
+      border-radius:18px; display:flex; align-items:center; justify-content:center;
+      font-size:30px; flex-shrink:0; box-shadow:0 8px 24px rgba(79,115,201,0.28);
+    }
+    .notice-lbl { font-size:0.70rem; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; color:var(--primary); margin-bottom:5px; }
+    .notice-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:1.35rem; color:var(--text); margin-bottom:9px; }
+    .notice-text { font-size:0.90rem; color:var(--text-2); line-height:1.7; }
+    .notice-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .ntag { font-size:0.70rem; font-weight:600; padding:4px 12px; border-radius:50px; background:rgba(79,115,201,0.08); color:var(--primary); border:1px solid rgba(79,115,201,0.15); }
+
+    /* ── FOOTER ── */
+    footer { background:linear-gradient(135deg,#1e2a4a,#16213e); color:rgba(255,255,255,0.85); padding:50px 5% 30px; }
+    .footer-in { max-width:1100px; margin:0 auto; }
+    .footer-top {
+      display:grid; grid-template-columns:1fr auto; gap:40px;
+      border-bottom:1px solid rgba(255,255,255,0.10); padding-bottom:34px; margin-bottom:22px;
+    }
+    .f-logo { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .f-logo-icon { width:42px; height:42px; border-radius:12px; background:linear-gradient(135deg,var(--primary),var(--violet)); display:flex; align-items:center; justify-content:center; font-size:20px; }
+    .f-logo-text { font-family:'Montserrat',sans-serif; font-weight:700; font-size:0.97rem; color:#fff; line-height:1.2; }
+    .f-logo-text span { color:var(--sky); }
+    .f-tag { font-size:0.83rem; color:rgba(255,255,255,0.50); line-height:1.6; max-width:360px; }
+    .f-author { text-align:right; }
+    .f-author-lbl { font-size:0.66rem; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; color:rgba(255,255,255,0.38); margin-bottom:5px; }
+    .f-author-name { font-family:'Montserrat',sans-serif; font-weight:700; font-size:1.02rem; color:#fff; margin-bottom:3px; }
+    .f-author-role { font-size:0.78rem; color:rgba(255,255,255,0.50); }
+    .f-line { width:56px; height:3px; border-radius:2px; background:linear-gradient(90deg,var(--primary),var(--violet)); margin:8px 0 0 auto; }
+    .footer-bot { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    .f-copy { font-size:0.74rem; color:rgba(255,255,255,0.36); }
+    .f-links { display:flex; gap:20px; }
+    .f-link { font-size:0.74rem; color:rgba(255,255,255,0.40); text-decoration:none; transition:color 0.2s; }
+    .f-link:hover { color:rgba(255,255,255,0.80); }
+
+    /* ── SCROLL TOP ── */
+    .scroll-top {
+      position:fixed; bottom:26px; right:26px; width:46px; height:46px;
+      border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--violet));
+      color:#fff; border:none; cursor:pointer; font-size:18px;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 16px rgba(79,115,201,0.40);
+      opacity:0; transform:translateY(20px);
+      transition:opacity 0.3s, transform 0.3s; z-index:500;
+    }
+    .scroll-top.show { opacity:1; transform:translateY(0); }
+    .scroll-top:hover { transform:translateY(-3px); }
+
+    /* ── ANIMACIONES ── */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse  { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.55;transform:scale(0.82);} }
+    .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.65s ease, transform 0.65s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:900px){
+      .hero-inner { grid-template-columns:1fr; }
+      .stats-grid { display:none; }
+      .notice-box { grid-template-columns:1fr; text-align:center; }
+      .notice-icon { margin:0 auto; }
+      .notice-tags { justify-content:center; }
+      .footer-top { grid-template-columns:1fr; }
+      .f-author { text-align:left; }
+      .f-line { margin-left:0; }
+      .nav-links { display:none; }
+      .hamburger { display:flex; }
+    }
+    @media(max-width:600px){
+      .hero { padding:110px 5% 60px; }
+      .section { padding:60px 5%; }
+      .cards-grid { grid-template-columns:1fr; }
+      .notice-box { padding:26px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="pc"></canvas>
+
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+</div>
+
+<!-- ══════════ NAVBAR ══════════ -->
+<nav class="navbar" id="nb">
+  <a href="#inicio" class="nav-logo">
+    <div class="nav-logo-icon">🎓</div>
+    <div class="nav-logo-text">Plataforma <span>EMS</span><br>2026</div>
+  </a>
+  <div class="nav-links" id="nl">
+    <a href="#inicio"          class="nav-link">Inicio</a>
+    <a href="#simuladores"     class="nav-link">Simuladores</a>
+    <a href="#caracteristicas" class="nav-link">Características</a>
+    <a href="#avisos"          class="nav-link">Avisos</a>
+  </div>
+  <a href="#simuladores" class="nav-cta">Comenzar →</a>
+  <div class="hamburger" id="hb"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero" id="inicio">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge"><div class="badge-dot"></div>Educación Media Superior · Ciclo 2026</div>
+      <h1 class="hero-title">
+        Plataforma<br>
+        <span class="hl1">Educativa</span><br>
+        <span class="hl2">Media Superior</span><br>
+        2026
+      </h1>
+      <p class="hero-sub">
+        Potencia tu preparación académica con simuladores interactivos diseñados para el dominio profundo del marco normativo y curricular de la Educación Media Superior.
+      </p>
+      <div class="hero-btns">
+        <a href="#simuladores" class="btn-prim">📚 Ver Simuladores</a>
+        <a href="#caracteristicas" class="btn-ghost">✨ Conocer más</a>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card accent"><span class="si">🎯</span><div class="sn">9</div><div class="sl">Simuladores disponibles</div></div>
+      <div class="stat-card"><span class="si">📝</span><div class="sn">30+</div><div class="sl">Reactivos por módulo</div></div>
+      <div class="stat-card"><span class="si">⚡</span><div class="sn">100%</div><div class="sl">Retroalimentación inmediata</div></div>
+      <div class="stat-card"><span class="si">🏆</span><div class="sn">EMS</div><div class="sl">Nivel Media Superior</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ SIMULADORES ══════════ -->
+<section class="section" id="simuladores">
+  <div class="sec-hd reveal">
+    <div class="sec-lbl">📊 Módulos Interactivos</div>
+    <h2 class="sec-title">Simuladores de <span class="hl">Estudio</span></h2>
+    <p class="sec-desc">Accede a los 9 simuladores interactivos sobre el marco normativo y curricular vigente de la Educación Media Superior.</p>
+  </div>
+  <div class="cards-grid">
+
+    <!-- 1 · Acuerdo 09/05/24 -->
+    <article class="sim-card c-blue reveal">
+      <div class="card-top">
+        <div class="card-icon">📋</div>
+        <span class="card-badge">Marco Legal</span>
+      </div>
+      <div class="card-name">Acuerdo 09/05/24 · MCCEMS</div>
+      <p class="card-desc">Evalúa tus conocimientos sobre el MCCEMS — Acuerdo 09/05/24. Artículos clave: 3, 40, 51–53, 56, 68 y 70. Evaluación formativa e implementación curricular.</p>
+      <div class="card-foot">
+        <div class="card-meta">📝 30 reactivos</div>
+        <a href="simuladores/Acuerdo_090524.html" class="acc-btn">
+          Acceder <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- 2 · Artículos Constitucionales -->
+    <article class="sim-card c-violet reveal">
+      <div class="card-top">
+        <div class="card-icon">⚖️</div>
+        <span class="card-badge">Constitucional</span>
+      </div>
+      <div class="card-name">Artículos 1°, 3° y 4° Constitucionales</div>
+      <p class="card-desc">Derechos Humanos, Educación y Marco Legal Constitucional. 30 preguntas de opción múltiple sobre los fundamentos constitucionales del sistema educativo mexicano.</p>
+      <div class="card-foot">
+        <div class="card-meta">📝 30 reactivos</div>
+        <a href="simuladores/Articulos_1_3_4.html" class="acc-btn">
+          Acceder <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- 3 · Curso-Taller 1
+         IMPORTANTE: el archivo tiene acento en "Práctica".
+         En GitHub Pages debes subir el archivo con ese nombre exacto.
+         Si lo renombras sin acento, cambia el href abajo. -->
+    <article class="sim-card c-cyan reveal">
+      <div class="card-top">
+        <div class="card-icon">🤝</div>
+        <span class="card-badge">Práctica Docente</span>
+      </div>
+      <div class="card-name">Curso-Taller 1: Práctica Docente Colaborativa</div>
+      <p class="card-desc">Simulador sobre la Práctica Docente Colaborativa en las Áreas de Acceso al Conocimiento. Transdisciplinariedad, trabajo colegiado y estrategias pedagógicas.</p>
+      <div class="card-foot">
+        <div class="card-meta">📝 Opción múltiple</div>
+        <a href="simuladores/Curso-Taller_1___Practica_Docente_Colaborativa.html" class="acc-btn" id="btn-curso">
+          Acceder <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- 4 · Convivencia Armónica -->
+    <article class="sim-card c-emerald reveal">
+      <div class="card-top">
+        <div class="card-icon">🕊️</div>
+        <span class="card-badge">Protocolo</span>
+      </div>
+      <div class="card-name">Protocolo de Convivencia Armónica</div>
+      <p class="card-desc">Protocolo para la Convivencia Armónica del Estudiantado en la EMS. Ciberacoso, tipos de acoso escolar, principios rectores y deberes del personal directivo y docente.</p>
+      <div class="card-foot">
+        <div class="card-meta">📝 Opción múltiple</div>
+        <a href="simuladores/simulador_convivencia_armonica.html" class="acc-btn">
+          Acceder <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- 5 · LGDNNA -->
+    <article class="sim-card c-amber reveal">
+      <div class="card-top">
+        <div class="card-icon">👦</div>
+        <span class="card-badge">Ley Federal</span>
+      </div>
+      <div class="card-name">LGDNNA · Derechos de Niñas, Niños y Adolescentes</div>
+      <p class="card-desc">Ley General de los Derechos de Niñas, Niños y Adolescentes. Domina el marco legal que protege y garantiza los derechos fundamentales de la infancia en México.</p>
+      <div class="card-foot">
+        <div class="card-meta">📝 Opción múltiple</div>
+        <a href="simuladores/simulador_LGDNNA.html" class="acc-btn">
+          Acceder <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- 6 · LGE -->
+    <article class="sim-card c-rose reveal">
+      <div class="card-top">
+        <div class="card-icon">📖</div>
+        <span class="card-badge">Ley General</span>
+      </div>
+      <div class="card-name">LGE · Ley General de Educación</div>
+      <p class="card-desc">Ley General de Educación y Marco Normativo de la EMS. Nueva Escuela Mexicana, tipos de bachillerato, equidad educativa y estructura del sistema educativo nacional.</p>
+      <div class="card-foot">
+        <div class="card-meta">📝 30 reactivos</div>
+        <a href="simuladores/simulador_LGE.html" class="acc-btn">
+          Acceder <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- 7 · LGRA -->
+    <article class="sim-card c-indigo reveal">
+      <div class="card-top">
+        <div class="card-icon">🏛️</div>
+        <span class="card-badge">Responsabilidades</span>
+      </div>
+      <div class="card-name">LGRA · Responsabilidades Administrativas</div>
+      <p class="card-desc">Ley General de Responsabilidades Administrativas. Principios del servicio público: imparcialidad, honradez y legalidad. Obligaciones de los servidores públicos.</p>
+      <div class="card-foot">
+        <div class="card-meta">📝 Opción múltiple</div>
+        <a href="simuladores/simulador_lgra.html" class="acc-btn">
+          Acceder <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- 8 · MCCEMS -->
+    <article class="sim-card c-teal reveal">
+      <div class="card-top">
+        <div class="card-icon">🧩</div>
+        <span class="card-badge">Curricular</span>
+      </div>
+      <div class="card-name">MCCEMS · Marco Curricular Común EMS</div>
+      <p class="card-desc">Rediseño del Marco Curricular Común de la EMS. Recursos sociocognitivos y socioemocionales, transversalidad curricular y estructura del MCCEMS. 30 reactivos.</p>
+      <div class="card-foot">
+        <div class="card-meta">📝 30 reactivos</div>
+        <a href="simuladores/simulador_MCCEMS.html" class="acc-btn">
+          Acceder <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- 9 · PAEC -->
+    <article class="sim-card c-sky reveal">
+      <div class="card-top">
+        <div class="card-icon">🌱</div>
+        <span class="card-badge">Programa</span>
+      </div>
+      <div class="card-name">PAEC · Programa Aula, Escuela y Comunidad</div>
+      <p class="card-desc">Programa Aula, Escuela y Comunidad. Selección de problemáticas, razones de magnitud, factibilidad e interés comunitario en proyectos educativos con impacto social.</p>
+      <div class="card-foot">
+        <div class="card-meta">📝 Opción múltiple</div>
+        <a href="simuladores/simulador_PAEC.html" class="acc-btn">
+          Acceder <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ══════════ CARACTERÍSTICAS ══════════ -->
+<section class="section" id="caracteristicas" style="padding-top:0;">
+  <div class="sec-hd reveal">
+    <div class="sec-lbl">✨ Metodología</div>
+    <h2 class="sec-title">¿Por qué usar esta <span class="hl">plataforma</span>?</h2>
+    <p class="sec-desc">Herramientas diseñadas para maximizar tu preparación en el menor tiempo posible.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-card reveal"><span class="feat-icon">⚡</span><div class="feat-title">Retroalimentación inmediata</div><p class="feat-desc">Conoce el resultado de cada respuesta al instante con explicaciones detalladas.</p></div>
+    <div class="feat-card reveal"><span class="feat-icon">🎯</span><div class="feat-title">Reactivos auténticos</div><p class="feat-desc">Preguntas basadas en el contenido normativo y curricular oficial vigente.</p></div>
+    <div class="feat-card reveal"><span class="feat-icon">📱</span><div class="feat-title">100% Responsive</div><p class="feat-desc">Accede desde cualquier dispositivo sin instalar nada.</p></div>
+    <div class="feat-card reveal"><span class="feat-icon">🔄</span><div class="feat-title">Guías de estudio</div><p class="feat-desc">Cada simulador incluye material de apoyo para reforzar el aprendizaje.</p></div>
+    <div class="feat-card reveal"><span class="feat-icon">📊</span><div class="feat-title">Resultados detallados</div><p class="feat-desc">Desglose completo de tu desempeño al finalizar cada simulador.</p></div>
+    <div class="feat-card reveal"><span class="feat-icon">🔓</span><div class="feat-title">Acceso libre</div><p class="feat-desc">Sin registro ni contraseña. Acceso inmediato a todos los simuladores.</p></div>
+  </div>
+</section>
+
+<!-- ══════════ AVISO ══════════ -->
+<section class="notice-wrap" id="avisos">
+  <div class="notice-box reveal">
+    <div class="notice-icon">📢</div>
+    <div>
+      <div class="notice-lbl">📌 Aviso Importante</div>
+      <div class="notice-title">Información para Docentes de Media Superior</div>
+      <p class="notice-text">Esta plataforma es una herramienta de apoyo académico para la preparación en procesos de evaluación y acreditación de la EMS. Los simuladores cubren el marco normativo vigente: MCCEMS, LGE, LGDNNA, LGRA, Acuerdo 09/05/24, Convivencia Armónica, PAEC y los Artículos Constitucionales. Se recomienda usarlos de forma complementaria al estudio de los documentos oficiales.</p>
+      <div class="notice-tags">
+        <span class="ntag">MCCEMS 2024</span>
+        <span class="ntag">Marco Normativo EMS</span>
+        <span class="ntag">Formación Docente</span>
+        <span class="ntag">GitHub Pages</span>
+        <span class="ntag">Acceso Libre</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <div class="footer-in">
+    <div class="footer-top">
+      <div>
+        <div class="f-logo">
+          <div class="f-logo-icon">🎓</div>
+          <div class="f-logo-text">Plataforma Educativa<br><span>Media Superior 2026</span></div>
+        </div>
+        <p class="f-tag">Simuladores interactivos para la preparación docente en el marco normativo y curricular de la Educación Media Superior en México.</p>
+      </div>
+      <div class="f-author">
+        <div class="f-author-lbl">Desarrollado por</div>
+        <div class="f-author-name">Dr. Francisco De Jesus<br>Luna Benitez</div>
+        <div class="f-author-role">Docente de Educación Media Superior</div>
+        <div class="f-line"></div>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span class="f-copy">© 2026 Plataforma Educativa Media Superior · Todos los derechos reservados</span>
+      <div class="f-links">
+        <a href="#inicio"      class="f-link">Inicio</a>
+        <a href="#simuladores" class="f-link">Simuladores</a>
+        <a href="#avisos"      class="f-link">Avisos</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<button class="scroll-top" id="st">↑</button>
+
+<script>
+/* ── Partículas ── */
+(function(){
+  var c=document.getElementById('pc'),ctx=c.getContext('2d'),W,H,pts=[];
+  function rsz(){W=c.width=innerWidth;H=c.height=innerHeight;}
+  addEventListener('resize',rsz);rsz();
+  for(var i=0;i<55;i++)pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*2+0.5,dx:(Math.random()-.5)*.35,dy:(Math.random()-.5)*.35,o:Math.random()*.4+0.1,h:210+Math.random()*80});
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(function(p){
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='hsl('+p.h+',70%,65%)';ctx.globalAlpha=p.o;ctx.fill();
+      p.x+=p.dx;p.y+=p.dy;
+      if(p.x<-10||p.x>W+10)p.dx*=-1;
+      if(p.y<-10||p.y>H+10)p.dy*=-1;
+    });
+    ctx.globalAlpha=1;requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── Reveal ── */
+(function(){
+  var els=document.querySelectorAll('.reveal');
+  var io=new IntersectionObserver(function(en){
+    en.forEach(function(e){
+      if(e.isIntersecting){
+        var idx=Array.from(e.target.parentElement.children).indexOf(e.target);
+        var delay=e.target.closest('.cards-grid')?idx*60:0;
+        setTimeout(function(){e.target.classList.add('visible');},delay);
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:0.12});
+  els.forEach(function(r){io.observe(r);});
+})();
+
+/* ── Navbar scroll ── */
+(function(){
+  var nb=document.getElementById('nb');
+  addEventListener('scroll',function(){
+    nb.style.background=scrollY>40?'rgba(255,255,255,0.92)':'rgba(255,255,255,0.78)';
+  });
+})();
+
+/* ── Scroll top ── */
+(function(){
+  var btn=document.getElementById('st');
+  addEventListener('scroll',function(){btn.classList.toggle('show',scrollY>400);});
+  btn.addEventListener('click',function(){scrollTo({top:0,behavior:'smooth'});});
+})();
+
+/* ── Hamburger ── */
+(function(){
+  var hb=document.getElementById('hb'),nl=document.getElementById('nl'),open=false;
+  hb.addEventListener('click',function(){
+    open=!open;
+    if(open){
+      nl.style.cssText='display:flex;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);padding:20px 5%;gap:18px;box-shadow:0 8px 24px rgba(0,0,0,0.10);z-index:999;';
+    } else { nl.removeAttribute('style'); }
+  });
+  nl.querySelectorAll('.nav-link').forEach(function(l){
+    l.addEventListener('click',function(){open=false;nl.removeAttribute('style');});
+  });
+})();
+
+/* ── Detectar nombre real del Curso-Taller (con o sin acento) ── */
+(function(){
+  var btn=document.getElementById('btn-curso');
+  var sinAcento='simuladores/Curso-Taller_1___Practica_Docente_Colaborativa.html';
+  var conAcento='simuladores/Curso-Taller_1___Pr%C3%A1ctica_Docente_Colaborativa.html';
+  fetch(sinAcento,{method:'HEAD'}).then(function(r){
+    if(!r.ok) btn.href=conAcento;
+  }).catch(function(){ btn.href=conAcento; });
+})();
+</script>
+
+</body>
+</html>
