@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador Interactivo de Evaluación – Prof. Francisco De Jesus Luna Benitez</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --primary: #1a5276;
+    --secondary: #2e86c1;
+    --accent: #f39c12;
+    --accent2: #27ae60;
+    --light: #eaf4fb;
+    --white: #ffffff;
+    --gray: #f0f4f8;
+    --text: #1c2833;
+    --muted: #7f8c8d;
+    --danger: #e74c3c;
+    --success: #27ae60;
+    --shadow: 0 8px 32px rgba(26,82,118,0.13);
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: linear-gradient(135deg, #e8f4fd 0%, #fef9f0 60%, #eafaf1 100%);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  /* ───── HEADER ───── */
+  header {
+    background: linear-gradient(120deg, #1a5276 0%, #2e86c1 60%, #1a8a5c 100%);
+    padding: 28px 20px 22px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(26,82,118,0.25);
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    color: #fff;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    position: relative;
+  }
+  header p {
+    color: rgba(255,255,255,0.88);
+    font-size: clamp(0.82rem, 2.2vw, 1.02rem);
+    margin-top: 6px;
+    font-weight: 300;
+    letter-spacing: 0.8px;
+    position: relative;
+  }
+  .header-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 30px;
+    padding: 4px 18px;
+    font-size: 0.78rem;
+    color: #fff;
+    margin-top: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: relative;
+  }
+
+  /* ───── NAV TABS ───── */
+  .tab-nav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 20px 0;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    background: var(--white);
+    border: 2px solid #d5e8f7;
+    border-radius: 30px;
+    padding: 8px 22px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--secondary);
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .tab-btn:hover, .tab-btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    box-shadow: 0 4px 14px rgba(26,82,118,0.22);
+  }
+
+  /* ───── CONTAINER ───── */
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px 16px 48px;
+  }
+
+  /* ───── SECTION PANELS ───── */
+  .panel { display: none; animation: fadeIn 0.4s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ───── WELCOME / START SCREEN ───── */
+  .welcome-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 44px 36px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-card::before {
+    content: '📚';
+    position: absolute; top: -18px; right: 22px;
+    font-size: 6rem; opacity: 0.07;
+  }
+  .welcome-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 3.5vw, 2rem);
+    color: var(--primary);
+    margin-bottom: 12px;
+  }
+  .welcome-card p {
+    color: var(--muted);
+    font-size: 0.97rem;
+    line-height: 1.6;
+    max-width: 520px;
+    margin: 0 auto 28px;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .info-chip {
+    background: var(--light);
+    border-radius: 12px;
+    padding: 14px 10px;
+    font-size: 0.82rem;
+    color: var(--primary);
+    font-weight: 500;
+  }
+  .info-chip span { display: block; font-size: 1.5rem; margin-bottom: 4px; }
+
+  .input-group {
+    position: relative;
+    max-width: 420px;
+    margin: 0 auto 24px;
+  }
+  .input-group label {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--primary);
+    margin-bottom: 8px;
+    text-align: left;
+  }
+  .input-group input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #d5e8f7;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--text);
+    background: var(--gray);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .input-group input:focus { border-color: var(--secondary); background: #fff; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 44px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(46,134,193,0.35);
+    transition: transform 0.18s, box-shadow 0.18s;
+    letter-spacing: 0.3px;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(46,134,193,0.4); }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* ───── QUIZ ───── */
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .student-tag {
+    background: var(--light);
+    border-radius: 30px;
+    padding: 7px 18px;
+    font-size: 0.88rem;
+    color: var(--primary);
+    font-weight: 500;
+  }
+  .q-counter {
+    font-size: 0.88rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .progress-bar-wrap {
+    background: #dce9f5;
+    border-radius: 10px;
+    height: 8px;
+    margin-bottom: 26px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--secondary), var(--accent2));
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  .question-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 36px 32px 30px;
+    position: relative;
+  }
+  .q-type-badge {
+    display: inline-block;
+    background: var(--light);
+    color: var(--secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .q-number {
+    font-size: 0.82rem;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .q-text {
+    font-size: clamp(0.98rem, 2.2vw, 1.12rem);
+    line-height: 1.65;
+    color: var(--text);
+    margin-bottom: 26px;
+    font-weight: 500;
+  }
+
+  .options-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .option-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--gray);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 15px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .option-item:hover { border-color: var(--secondary); background: var(--light); }
+  .option-item.selected { border-color: var(--secondary); background: #e3f2fd; }
+  .option-item.correct { border-color: var(--success); background: #eafaf1; pointer-events: none; }
+  .option-item.wrong { border-color: var(--danger); background: #fdedec; pointer-events: none; }
+  .option-item.disabled { pointer-events: none; }
+  .option-item.show-correct { border-color: var(--success); background: #eafaf1; }
+
+  .opt-letter {
+    min-width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 2px solid #bcd4ea;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.88rem;
+    color: var(--secondary);
+    transition: all 0.2s;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .option-item.selected .opt-letter { background: var(--secondary); border-color: var(--secondary); color: #fff; }
+  .option-item.correct .opt-letter { background: var(--success); border-color: var(--success); color: #fff; }
+  .option-item.wrong .opt-letter { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .option-item.show-correct .opt-letter { background: var(--success); border-color: var(--success); color: #fff; }
+
+  .opt-text { font-size: 0.97rem; line-height: 1.5; color: var(--text); }
+
+  .feedback-box {
+    margin-top: 20px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .feedback-box.correct { background: #eafaf1; border-left: 4px solid var(--success); color: #1e8449; }
+  .feedback-box.wrong { background: #fdedec; border-left: 4px solid var(--danger); color: #922b21; }
+  .feedback-box strong { display: block; margin-bottom: 4px; }
+
+  .quiz-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn-next {
+    background: linear-gradient(135deg, var(--accent), #e67e22);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 13px 36px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 5px 18px rgba(243,156,18,0.35);
+    transition: transform 0.18s, box-shadow 0.18s;
+    display: none;
+  }
+  .btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(243,156,18,0.45); }
+
+  /* ───── RESULTS ───── */
+  .results-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 44px 32px 40px;
+    text-align: center;
+  }
+  .results-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    color: var(--primary);
+    margin-bottom: 6px;
+  }
+  .results-name {
+    font-size: 1.08rem;
+    color: var(--muted);
+    margin-bottom: 30px;
+  }
+  .score-circle {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: conic-gradient(var(--secondary) calc(var(--pct) * 1%), #dce9f5 0);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 28px;
+    position: relative;
+  }
+  .score-circle-inner {
+    width: 108px; height: 108px;
+    border-radius: 50%;
+    background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .score-pct { font-size: 1.8rem; font-weight: 700; color: var(--primary); line-height: 1; }
+  .score-label { font-size: 0.72rem; color: var(--muted); }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 380px;
+    margin: 0 auto 28px;
+  }
+  .res-chip {
+    border-radius: 14px;
+    padding: 18px 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .res-chip.good { background: #eafaf1; color: #1e8449; }
+  .res-chip.bad { background: #fdedec; color: #922b21; }
+  .res-chip .res-num { font-size: 2rem; font-weight: 700; display: block; }
+
+  .motivational {
+    background: linear-gradient(135deg, #fef9e7, #eaf4fb);
+    border-radius: 14px;
+    padding: 18px 22px;
+    font-size: 0.98rem;
+    color: var(--primary);
+    font-style: italic;
+    margin-bottom: 28px;
+    border-left: 4px solid var(--accent);
+    text-align: left;
+  }
+  .btn-restart {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 38px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(26,82,118,0.3);
+    transition: transform 0.18s;
+  }
+  .btn-restart:hover { transform: translateY(-2px); }
+
+  /* ───── STUDY GUIDE ───── */
+  .guide-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 36px 32px;
+    text-align: center;
+  }
+  .guide-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem;
+    color: var(--primary);
+    margin-bottom: 10px;
+  }
+  .guide-card p { color: var(--muted); font-size: 0.97rem; margin-bottom: 28px; }
+  .btn-guide {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #27ae60, #1a8a5c);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 38px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(39,174,96,0.35);
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+  .btn-guide:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(39,174,96,0.42); }
+  .guide-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin: 32px 0 28px;
+  }
+  .guide-feat {
+    background: var(--light);
+    border-radius: 12px;
+    padding: 18px 14px;
+    font-size: 0.88rem;
+    color: var(--primary);
+  }
+  .guide-feat span { font-size: 1.8rem; display: block; margin-bottom: 8px; }
+
+  /* ───── RESPONSIVE ───── */
+  @media (max-width: 600px) {
+    .question-card { padding: 24px 18px 22px; }
+    .welcome-card { padding: 32px 20px 28px; }
+    .results-card { padding: 30px 18px 28px; }
+    .guide-card { padding: 28px 18px; }
+    .results-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ───── TRANSITION ───── */
+  .question-card { transition: opacity 0.3s; }
+  .question-card.fade-out { opacity: 0; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <h1>Simulador Interactivo de Evaluación</h1>
+  <p>Prof. Francisco De Jesus Luna Benitez</p>
+  <div class="header-badge">Curso-Taller 1 · Práctica Docente Colaborativa</div>
+</header>
+
+<!-- NAV -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('inicio')">🏠 Inicio</button>
+  <button class="tab-btn" onclick="showTab('simulador')">📝 Simulador</button>
+  <button class="tab-btn" onclick="showTab('resultados')">📊 Resultados</button>
+  <button class="tab-btn" onclick="showTab('guia')">📖 Guía de Estudio</button>
+</div>
+
+<div class="container">
+
+  <!-- INICIO -->
+  <div class="panel active" id="panel-inicio">
+    <div class="welcome-card">
+      <h2>¡Bienvenido al Simulador de Evaluación!</h2>
+      <p>Este simulador evalúa tus conocimientos sobre disciplinariedad, interdisciplinariedad, transdisciplinariedad y trabajo colaborativo docente. Consta de <strong>30 preguntas</strong> de opción múltiple.</p>
+      <div class="info-grid">
+        <div class="info-chip"><span>📋</span>30 preguntas</div>
+        <div class="info-chip"><span>🎯</span>3 opciones c/u</div>
+        <div class="info-chip"><span>💬</span>Retroalimentación</div>
+        <div class="info-chip"><span>📊</span>Resultados finales</div>
+      </div>
+      <div class="input-group">
+        <label for="studentName">Nombre del estudiante</label>
+        <input type="text" id="studentName" placeholder="Escribe tu nombre completo..." maxlength="80" />
+      </div>
+      <button class="btn-primary" onclick="startQuiz()">Iniciar Simulador →</button>
+    </div>
+  </div>
+
+  <!-- SIMULADOR -->
+  <div class="panel" id="panel-simulador">
+    <div class="quiz-header">
+      <div class="student-tag">👤 <span id="displayName">Estudiante</span></div>
+      <div class="q-counter">Pregunta <span id="qNum">1</span> de 30</div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressBar" style="width:3.33%"></div>
+    </div>
+    <div class="question-card" id="questionCard">
+      <div class="q-type-badge" id="qTypeBadge">Cuestionamiento directo</div>
+      <div class="q-number" id="qNumberLabel">Pregunta 1</div>
+      <div class="q-text" id="qText"></div>
+      <ul class="options-list" id="optionsList"></ul>
+      <div class="feedback-box" id="feedbackBox"></div>
+    </div>
+    <div class="quiz-footer">
+      <button class="btn-next" id="btnNext" onclick="nextQuestion()">Siguiente pregunta →</button>
+    </div>
+  </div>
+
+  <!-- RESULTADOS -->
+  <div class="panel" id="panel-resultados">
+    <div class="results-card">
+      <h2>🎓 Resultados Finales</h2>
+      <div class="results-name" id="resultsName"></div>
+      <div class="score-circle" id="scoreCircle">
+        <div class="score-circle-inner">
+          <span class="score-pct" id="scorePct">0%</span>
+          <span class="score-label">Desempeño</span>
+        </div>
+      </div>
+      <div class="results-grid">
+        <div class="res-chip good">
+          <span class="res-num" id="resCorrect">0</span>
+          ✅ Aciertos
+        </div>
+        <div class="res-chip bad">
+          <span class="res-num" id="resWrong">0</span>
+          ❌ Errores
+        </div>
+      </div>
+      <div class="motivational" id="motivationalMsg"></div>
+      <button class="btn-restart" onclick="restartQuiz()">🔄 Volver a intentarlo</button>
+    </div>
+  </div>
+
+  <!-- GUÍA DE ESTUDIO -->
+  <div class="panel" id="panel-guia">
+    <div class="guide-card">
+      <h2>📖 Guía de Estudio</h2>
+      <p>Accede al material de referencia del Curso-Taller 1: <em>Hacia una Práctica Docente Colaborativa en las Áreas de Acceso al Conocimiento</em>.</p>
+      <div class="guide-features">
+        <div class="guide-feat"><span>🔬</span>Disciplinariedad e interdisciplinariedad</div>
+        <div class="guide-feat"><span>🌐</span>Transdisciplinariedad y NEM</div>
+        <div class="guide-feat"><span>🤝</span>Trabajo colaborativo docente</div>
+        <div class="guide-feat"><span>📚</span>Comunidades de aprendizaje</div>
+      </div>
+      <a class="btn-guide" href="https://drive.google.com/file/d/18RtecSch98i06_bQklqAbvvI4rfi0CW8/view?usp=drive_link" target="_blank" rel="noopener">
+        📄 Abrir PDF de la Guía de Estudio
+      </a>
+      <p style="margin-top:18px; font-size:0.82rem; color:var(--muted);">El documento se abrirá en una nueva pestaña desde Google Drive.</p>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// BANCO DE 30 PREGUNTAS
+// Tipos: 'directo' | 'completamiento' | 'ordenamiento' | 'relacion'
+// Respuestas correctas distribuidas: A×10, B×10, C×10
+// ═══════════════════════════════════════════════════════════════
+const questions = [
+  // ── 1 (correcta: B) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "Según Tamayo y Tamayo, ¿cómo se define la disciplinariedad?",
+    opciones: [
+      "La integración de varias ciencias en una sola teoría unificada para resolver problemas complejos del contexto global.",
+      "La exploración realizada en un conjunto homogéneo, con el fin de producir conocimientos nuevos que actualizan o prolongan los anteriores.",
+      "El diálogo permanente entre distintas asignaturas que comparten objetivos comunes y habilidades para el desarrollo curricular."
+    ],
+    correcta: 1,
+    feedback: "La disciplinariedad, según Tamayo y Tamayo, es la exploración en un conjunto homogéneo orientada a producir conocimientos nuevos que hacen obsoletos a los anteriores o los prolongan para hacerlos más completos."
+  },
+  // ── 2 (correcta: A) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "¿Cuál de las siguientes afirmaciones describe correctamente a la multidisciplinariedad en el contexto educativo?",
+    opciones: [
+      "Es el conjunto de disciplinas que se encuentran en el mismo contexto educativo, como el plantel escolar, sin que necesariamente establezcan relaciones profundas entre sí.",
+      "Es la integración total de dos o más disciplinas que comparten un marco conceptual único para abordar la enseñanza de manera transveral.",
+      "Es el enfoque que elimina las fronteras entre asignaturas para construir nuevas disciplinas a partir de la síntesis de conocimientos distintos."
+    ],
+    correcta: 0,
+    feedback: "La multidisciplinariedad es el conjunto de disciplinas que se encuentran en el mismo sitio, como el plantel escolar. Implica comunicación entre disciplinas, pero el enriquecimiento recae en la disciplina base y no siempre existe interacción real entre docentes."
+  },
+  // ── 3 (correcta: C) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "Según George Gusdorf, ¿qué impone la experiencia interdisciplinaria al especialista?",
+    opciones: [
+      "Abandonar su propia disciplina para adoptar los métodos de otras ciencias y construir un nuevo paradigma educativo.",
+      "Limitarse a transferir conocimientos de otras disciplinas a sus estudiantes sin modificar sus propios esquemas cognitivos.",
+      "Trascender su propia especialidad, tomar conciencia de sus límites y acoger las contribuciones de otras disciplinas."
+    ],
+    correcta: 2,
+    feedback: "Gusdorf señala que la experiencia interdisciplinaria impone a cada especialista trascender su propia especialidad, tomar conciencia de sus propios límites y estar dispuesto a acoger las contribuciones de las otras disciplinas."
+  },
+  // ── 4 (correcta: A) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "¿Cuál es el objetivo principal de la transdisciplinariedad según Morin (1984)?",
+    opciones: [
+      "Crear puentes entre conocimientos de distintas disciplinas para acercarse a una totalidad de pensamiento y de realidad, sin aspirar a convertirse en una nueva superdisciplina.",
+      "Sustituir los planes de estudio disciplinares por un currículo unificado que integre todas las ciencias en un solo sistema de conocimiento.",
+      "Garantizar que cada docente domine múltiples disciplinas para poder diseñar estrategias de enseñanza totalmente autónomas."
+    ],
+    correcta: 0,
+    feedback: "La transdisciplinariedad, según Morin, busca crear puentes entre conocimientos para acercarse a una totalidad de pensamiento y de realidad. No aspira a ser una nueva disciplina ni una superdisciplina."
+  },
+  // ── 5 (correcta: B) ──
+  {
+    tipo: "Completamiento",
+    texto: "La interdisciplinariedad surge como un enfoque que va en contra del reduccionismo científico. Se define como: un conjunto de disciplinas conexas entre sí y con relaciones definidas, a fin de que…",
+    opciones: [
+      "…cada asignatura refuerce sus propios contenidos sin depender de otras disciplinas para alcanzar sus objetivos curriculares específicos.",
+      "…sus actividades no se produzcan de forma aislada, dispersa y fraccionada, sino de manera integral y articulada.",
+      "…los docentes puedan evaluar a sus estudiantes con instrumentos comunes diseñados desde varias áreas del conocimiento."
+    ],
+    correcta: 1,
+    feedback: "La interdisciplinariedad se define como un conjunto de disciplinas conexas entre sí y con relaciones definidas, a fin de que sus actividades no se produzcan de forma aislada, dispersa y fraccionada."
+  },
+  // ── 6 (correcta: C) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "Un docente de Historia y uno de Biología deciden abordar de forma conjunta la problemática del cambio climático en sus respectivos grupos, relacionando causas históricas con consecuencias biológicas. ¿Qué tipo de disciplinariedad refleja esta práctica?",
+    opciones: [
+      "Multidisciplinariedad, porque ambas materias coexisten en el mismo plantel pero no modifican sus objetivos curriculares propios.",
+      "Transdisciplinariedad, porque trascienden los límites de sus asignaturas para construir un conocimiento totalmente nuevo.",
+      "Interdisciplinariedad, porque establecen relaciones definidas entre sus disciplinas para abordar el objeto de estudio de modo integral."
+    ],
+    correcta: 2,
+    feedback: "Esta situación refleja interdisciplinariedad: las disciplinas establecen relaciones definidas entre sí con el fin de abordar un objeto de estudio de modo integral, sin que sus actividades sean aisladas o fraccionadas."
+  },
+  // ── 7 (correcta: A) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "De acuerdo con Fiallo Rodríguez (2001), ¿cuál es una ventaja del trabajo interdisciplinario en el proceso de enseñanza-aprendizaje?",
+    opciones: [
+      "Flexibiliza las fronteras entre las disciplinas, mostrando la complejidad de los fenómenos tal como se presentan en la realidad.",
+      "Elimina la necesidad de planear por separado cada asignatura, ya que todos los docentes comparten un único programa de trabajo.",
+      "Garantiza que las y los estudiantes obtengan calificaciones más altas al reducir la complejidad de los contenidos curriculares."
+    ],
+    correcta: 0,
+    feedback: "Según Fiallo Rodríguez, la interdisciplinariedad flexibiliza las fronteras entre disciplinas y contribuye a debilitar los compartimentos estancos en los conocimientos de las y los estudiantes, mostrando la complejidad de los fenómenos de la naturaleza y la sociedad."
+  },
+  // ── 8 (correcta: B) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "¿Cuál de los siguientes representa un obstáculo real para el trabajo interdisciplinario en el contexto docente?",
+    opciones: [
+      "El exceso de tiempo libre que tienen los docentes, lo que dificulta coordinar horarios de trabajo colaborativo con sus pares.",
+      "La formación eminentemente disciplinar de los docentes, que los lleva a considerar su asignatura como la más importante del plan de estudios.",
+      "La disposición voluntaria de los estudiantes por aprender de varias asignaturas al mismo tiempo, lo que genera conflictos de atención."
+    ],
+    correcta: 1,
+    feedback: "Uno de los principales obstáculos señalados es que la formación disciplinar de los docentes los lleva a pensar que su disciplina es la más importante dentro del plan de estudio, dificultando la apertura hacia otros campos."
+  },
+  // ── 9 (correcta: C) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "En el contexto educativo, la transdisciplinariedad implica que los contenidos curriculares deben:",
+    opciones: [
+      "Ser impartidos de forma secuencial y estrictamente separada para garantizar que cada disciplina preserve su identidad epistemológica.",
+      "Ser evaluados únicamente mediante instrumentos cuantitativos que permitan medir el dominio de cada campo del conocimiento.",
+      "Recorrerse bajo la perspectiva de relaciones con otros campos como posibilidad para la construcción de nuevos conocimientos."
+    ],
+    correcta: 2,
+    feedback: "Desde la perspectiva transdisciplinar, los contenidos curriculares deben recorrerse bajo la perspectiva de relaciones con otros campos como posibilidad para la construcción de nuevos conocimientos, tanto para docentes como para estudiantes."
+  },
+  // ── 10 (correcta: B) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "Según Calvo (2013), ¿qué característica tienen las experiencias más eficaces de desarrollo profesional docente?",
+    opciones: [
+      "Están centradas en cursos de actualización impartidos por especialistas externos a la institución educativa.",
+      "Están basadas en los centros educativos, se inscriben en las actividades cotidianas de los docentes y promueven el trabajo colaborativo.",
+      "Se realizan en plataformas virtuales nacionales donde los docentes pueden acceder a material de forma individual y asincrónica."
+    ],
+    correcta: 1,
+    feedback: "De acuerdo con Calvo (2013), las experiencias más eficaces para el desarrollo profesional son aquellas basadas en los centros educativos, inscritas dentro de las actividades cotidianas de las y los docentes y que promueven el trabajo colaborativo."
+  },
+  // ── 11 (correcta: A) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "¿Cuál es el papel fundamental del personal directivo en el trabajo colaborativo docente?",
+    opciones: [
+      "Apoyar y facilitar los proyectos colaborativos de los docentes, ya que sin ese respaldo el trabajo colaborativo es difícil de llevar a cabo.",
+      "Evaluar el desempeño individual de cada docente para identificar quiénes están dispuestos a participar en proyectos colaborativos.",
+      "Diseñar por sí solo las estrategias de enseñanza transdisciplinar que los docentes deberán implementar en sus aulas."
+    ],
+    correcta: 0,
+    feedback: "El material señala que el trabajo colaborativo es difícil de llevar a cabo si no se cuenta con el apoyo del personal directivo. Su papel es fundamental para aterrizar los proyectos de las y los docentes."
+  },
+  // ── 12 (correcta: C) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "¿Qué son las Comunidades de Aprendizaje centradas en docentes?",
+    opciones: [
+      "Grupos de estudiantes de bachillerato que se reúnen para diseñar proyectos escolares de manera autónoma y sin la guía del docente.",
+      "Plataformas digitales en las que los docentes comparten materiales didácticos sin necesidad de interactuar entre sí de forma presencial.",
+      "Grupos de profesionales de diversas asignaturas que comparten y cuestionan su práctica de manera continua, crítica, reflexiva y colaborativa, con el objetivo de orientar el aprendizaje de sus estudiantes."
+    ],
+    correcta: 2,
+    feedback: "Las Comunidades de Aprendizaje centradas en docentes son grupos de profesionales de diversas asignaturas y disciplinas que comparten y cuestionan su práctica de manera continua, crítica, reflexiva y colaborativamente, con el objetivo de orientar el aprendizaje de sus estudiantes a través de estrategias innovadoras."
+  },
+  // ── 13 (correcta: B) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "¿En qué se diferencia el Estudio de clases de otras formas de trabajo colaborativo?",
+    opciones: [
+      "En que los docentes participan de manera individual, diseñando sus clases en solitario para luego presentarlas ante sus colegas.",
+      "En que permite a los docentes observar, reflexionar y mejorar sistemáticamente sus prácticas a través del aprendizaje con otros docentes, planificando clases que luego se observan y retroalimentan.",
+      "En que sustituye completamente la planeación curricular individual por una planeación colectiva aprobada por las autoridades educativas."
+    ],
+    correcta: 1,
+    feedback: "El Estudio de clases es una estrategia colaborativa que permite a los docentes observar, reflexionar y mejorar sistemáticamente sus prácticas. Los docentes se dan tiempos para conformar grupos, planificar clases que luego se observan y retroalimentan con el fin de mejorar."
+  },
+  // ── 14 (correcta: A) ──
+  {
+    tipo: "Relación de elementos",
+    texto: "Relacione el tipo de disciplinariedad con su característica principal:\n\n1. Multidisciplinariedad\n2. Interdisciplinariedad\n3. Transdisciplinariedad\n\na) Trabaja a través de y más allá de las disciplinas.\nb) Trabaja con varias disciplinas en el mismo lugar sin integración profunda.\nc) Trabaja entre disciplinas con un objetivo común.",
+    opciones: [
+      "1-b, 2-c, 3-a",
+      "1-a, 2-b, 3-c",
+      "1-c, 2-a, 3-b"
+    ],
+    correcta: 0,
+    feedback: "La multidisciplinariedad trabaja con varias disciplinas en el mismo lugar (b); la interdisciplinariedad trabaja entre disciplinas con objetivos comunes (c); la transdisciplinariedad trabaja a través de y más allá de las disciplinas (a)."
+  },
+  // ── 15 (correcta: C) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "Desde la perspectiva de Pérez, Moya y Curcu (2012), ¿qué caracteriza a la transdisciplinariedad como espacio pedagógico?",
+    opciones: [
+      "La imposición de un método único y universal que organiza los contenidos de todas las disciplinas bajo una sola lógica epistémica.",
+      "La restricción del diálogo entre disciplinas para garantizar que cada campo del conocimiento preserve su identidad sin contaminaciones externas.",
+      "Su apertura, libertad, diálogo y comprensión, donde no existen límites disciplinarios y la transversalidad constituye espacios para pensar lo impensable."
+    ],
+    correcta: 2,
+    feedback: "Según Pérez, Moya y Curcu (2012), la transdisciplinariedad se caracteriza por ser un espacio de apertura, libertad, diálogo, encuentro y comprensión, donde no existen límites disciplinarios y la transversalidad abre espacios para pensar lo impensable."
+  },
+  // ── 16 (correcta: A) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "Un docente de Física trabaja junto con un colega de Ciencias Sociales y uno de Literatura para diseñar, bajo un marco conceptual compartido, una unidad que aborda el fenómeno de las migraciones desde sus tres áreas. Los tres comparten objetivos comunes y habilidades de desarrollo. ¿Qué tipo de disciplinariedad practican?",
+    opciones: [
+      "Transdisciplinariedad, porque trabajan bajo un marco conceptual compartido que une a los especialistas y trasciende los límites de cada disciplina.",
+      "Multidisciplinariedad, porque son tres docentes de áreas distintas que coexisten en el mismo plantel educativo.",
+      "Interdisciplinariedad, porque establecen relaciones entre sus disciplinas para abordar un objeto de estudio de manera conjunta."
+    ],
+    correcta: 0,
+    feedback: "La situación descrita corresponde a la transdisciplinariedad: los participantes trabajan bajo un marco conceptual compartido, con objetivos comunes y habilidades compartidas, trascendiendo los límites de sus disciplinas específicas."
+  },
+  // ── 17 (correcta: B) ──
+  {
+    tipo: "Completamiento",
+    texto: "De acuerdo con el Curso-Taller 1, la interdisciplinariedad es también un enfoque metodológico que sirve para…",
+    opciones: [
+      "…diseñar instrumentos de evaluación estandarizados que midan de manera uniforme el desempeño de todos los estudiantes de bachillerato.",
+      "…la solución de problemas educativos, abordando los objetos de estudio de modo integral a partir de la relación entre disciplinas.",
+      "…que cada docente organice de manera autónoma su programa de estudios sin necesidad de coordinarse con sus colegas."
+    ],
+    correcta: 1,
+    feedback: "La interdisciplinariedad es, según el material, un enfoque metodológico para la solución de problemas educativos, ya que permite que los objetos de estudio sean abordados de modo integral."
+  },
+  // ── 18 (correcta: C) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "¿Por qué el trabajo colaborativo se vuelve indispensable para aplicar enfoques interdisciplinarios y transdisciplinarios en la práctica docente?",
+    opciones: [
+      "Porque los docentes deben obtener una segunda licenciatura en otra disciplina antes de poder diseñar estrategias transversales de enseñanza.",
+      "Porque las autoridades educativas exigen que todos los proyectos pedagógicos sean firmados por al menos tres docentes de diferentes asignaturas.",
+      "Porque los docentes no disponen de tiempo para cursar otras disciplinas, y el trabajo colaborativo permite integrar saberes de múltiples campos para atender los retos educativos complejos."
+    ],
+    correcta: 2,
+    feedback: "El material señala que los docentes no disponen de tiempo para cursar otras dos o tres disciplinas. Por eso, el trabajo colaborativo se vuelve un plus: permite integrar los saberes de múltiples campos para atender los retos de enseñanza transversal y la formación integral bajo el contexto de la NEM."
+  },
+  // ── 19 (correcta: A) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "Según Vaillant (2013), ¿qué concluye el análisis de experiencias colaborativas en países de América Latina?",
+    opciones: [
+      "La colaboración no surge por generación espontánea, sino que requiere de espacios específicos que la favorezcan.",
+      "Las experiencias colaborativas son más exitosas cuando son lideradas exclusivamente por el personal directivo de cada institución.",
+      "El trabajo colaborativo entre docentes solo es posible en sistemas educativos con alta inversión en tecnología e infraestructura digital."
+    ],
+    correcta: 0,
+    feedback: "El análisis de experiencias colaborativas reportadas por Vaillant (2013) muestra que la colaboración no surge por generación espontánea, sino que requiere de espacios que la favorezcan."
+  },
+  // ── 20 (correcta: B) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "Bajo el contexto de la Nueva Escuela Mexicana (NEM), ¿qué busca el trabajo colaborativo como metodología para los docentes?",
+    opciones: [
+      "Reemplazar los programas de estudio vigentes por proyectos diseñados exclusivamente por los docentes sin considerar los lineamientos institucionales.",
+      "Permitir que las y los docentes trabajen, compartan y diseñen estrategias de enseñanza, procesos de aprendizaje y evaluación de los contenidos de manera transversal.",
+      "Reducir la carga administrativa de los docentes para que puedan dedicar más tiempo a la impartición individual de sus asignaturas."
+    ],
+    correcta: 1,
+    feedback: "Bajo el contexto de la NEM, el trabajo colaborativo busca que los docentes trabajen, compartan y diseñen estrategias de enseñanza, procesos de aprendizaje y evaluación de contenidos de manera transversal, estudiando juntos e investigando sus prácticas pedagógicas (Vaillant, 2016)."
+  },
+  // ── 21 (correcta: C) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "Dos docentes del mismo plantel imparten Español y Biología respectivamente. Saben que sus asignaturas son importantes y conforman el plan de estudios, pero no han establecido ninguna relación pedagógica entre ellas. ¿Qué tipo de disciplinariedad describe mejor esta situación?",
+    opciones: [
+      "Interdisciplinariedad, porque ambas asignaturas pertenecen al mismo plan de estudios y comparten contexto institucional.",
+      "Transdisciplinariedad, porque la coexistencia en el mismo plantel genera un flujo espontáneo de información entre las disciplinas.",
+      "Multidisciplinariedad, porque las disciplinas coexisten en el mismo contexto educativo sin establecer relaciones pedagógicas profundas entre sí."
+    ],
+    correcta: 2,
+    feedback: "La situación describe multidisciplinariedad: las disciplinas se encuentran en el mismo contexto educativo y se reconocen como importantes, pero no han establecido relaciones interdisciplinares. La multidisciplinariedad es un primer paso, pero sigue siendo limitada."
+  },
+  // ── 22 (correcta: A) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "En el diálogo transdisciplinario de saberes, ¿qué no es suficiente según Pérez, Moya y Curcu (2012)?",
+    opciones: [
+      "Solo el conocer; también es necesario preguntarse el por qué conocer y para qué conocer, como fundamento ético del razonar.",
+      "La participación de los estudiantes; también es necesaria la supervisión permanente del personal directivo y de los padres de familia.",
+      "La planificación individual del docente; también se requiere de materiales didácticos aprobados por la Secretaría de Educación Pública."
+    ],
+    correcta: 0,
+    feedback: "En el diálogo transdisciplinario, no es suficiente el conocer, sino también el por qué conocer y para qué conocer. Estas interrogantes se plantean como fundamento ético del razonar, de la crítica y la autocrítica como elementos de un verdadero proceso de autoconciencia."
+  },
+  // ── 23 (correcta: B) ──
+  {
+    tipo: "Relación de elementos",
+    texto: "Relacione el elemento clave del trabajo colaborativo con su descripción:\n\n1. Objetivo común\n2. Interdependencia positiva\n3. Reflexión pedagógica\n\na) Base del diálogo e interacción entre los miembros del grupo.\nb) Todos los participantes tienen las mismas oportunidades de intervenir.\nc) Define la meta del grupo que responde a las necesidades docentes.",
+    opciones: [
+      "1-a, 2-c, 3-b",
+      "1-c, 2-b, 3-a",
+      "1-b, 2-a, 3-c"
+    ],
+    correcta: 1,
+    feedback: "El objetivo común define la meta del grupo (c); la interdependencia positiva garantiza que todos los participantes tengan las mismas oportunidades de intervenir (b); la reflexión pedagógica es la base del diálogo e interacción (a)."
+  },
+  // ── 24 (correcta: C) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "¿Cuál de las siguientes ventajas del trabajo colaborativo señala el material del Curso-Taller 1?",
+    opciones: [
+      "Elimina las diferencias individuales entre los miembros del grupo, garantizando que todos aprendan al mismo ritmo y con los mismos resultados.",
+      "Reduce la necesidad de que los docentes asistan a cursos de actualización, pues el aprendizaje entre pares sustituye la formación continua.",
+      "Estimula la creatividad de profesoras, profesores y estudiantes al enfrentarse a nuevas vías para impartir y apropiarse de los contenidos."
+    ],
+    correcta: 2,
+    feedback: "Una de las ventajas del trabajo interdisciplinario y colaborativo señaladas en el material es que estimula la creatividad de profesoras, profesores y estudiantes al enfrentarse a nuevas vías para impartir y apropiarse de los contenidos."
+  },
+  // ── 25 (correcta: A) ──
+  {
+    tipo: "Ordenamiento",
+    texto: "Ordene los niveles de disciplinariedad de menor a mayor complejidad, según el esquema presentado en el material del Curso-Taller 1:",
+    opciones: [
+      "Multidisciplinariedad → Pluridisciplinariedad → Interdisciplinariedad → Intradisciplinariedad → Transdisciplinariedad",
+      "Transdisciplinariedad → Interdisciplinariedad → Intradisciplinariedad → Pluridisciplinariedad → Multidisciplinariedad",
+      "Intradisciplinariedad → Pluridisciplinariedad → Multidisciplinariedad → Interdisciplinariedad → Transdisciplinariedad"
+    ],
+    correcta: 0,
+    feedback: "Según el esquema del material, los tipos de disciplinariedad se ordenan de menor a mayor complejidad así: Multidisciplinariedad, Pluridisciplinariedad, Interdisciplinariedad, Intradisciplinariedad y Transdisciplinariedad."
+  },
+  // ── 26 (correcta: B) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "Una docente de Matemáticas trabaja sola en la resolución de un problema pedagógico de su aula, aplicando únicamente los métodos y herramientas propios de su disciplina. ¿Qué limitación refleja esta situación?",
+    opciones: [
+      "Ausencia de habilidades digitales, ya que no utiliza plataformas educativas para enriquecer su práctica docente.",
+      "Las limitaciones propias de la disciplina individual: por más que se desarrolle, no puede por sí sola resolver las problemáticas complejas del contexto educativo actual.",
+      "Falta de vocación docente, porque una docente comprometida siempre trabajaría en equipo con sus colegas de otras asignaturas."
+    ],
+    correcta: 1,
+    feedback: "El material señala que las disciplinas, por más que se desarrollen, siguen siendo limitadas frente a las problemáticas complejas del contexto mundial y educativo. Por eso se requieren enfoques multi, inter y transdisciplinar que integren perspectivas de otros campos."
+  },
+  // ── 27 (correcta: C) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "Calvo (2013) define las prácticas colaborativas efectivas en la institución educativa como aquellas que:",
+    opciones: [
+      "Son impuestas por las autoridades educativas y se centran en la revisión administrativa de los planes de estudio de cada docente.",
+      "Se limitan a reuniones informales entre docentes durante los recreos, sin agenda ni propósito pedagógico definido.",
+      "Tienen que ver con lo que hacen los docentes y directivos cuando trabajan juntos para desarrollar prácticas efectivas de aprendizaje y analizan lo que acontece realmente en las aulas."
+    ],
+    correcta: 2,
+    feedback: "Calvo (2013) define las prácticas colaborativas efectivas como aquellas que tienen que ver con lo que hacen los docentes y directivos cuando trabajan juntos para desarrollar prácticas efectivas de aprendizaje, analizan lo que acontece realmente en las aulas y velan por que la actuación del colectivo se realice bien."
+  },
+  // ── 28 (correcta: A) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "¿Cuál de las siguientes categorías del trabajo colaborativo entre docentes, reportadas por Calvo (2013), describe el acompañamiento entre profesores expertos y noveles?",
+    opciones: [
+      "La categoría centrada en el trabajo con el otro, donde un docente se apoya en la experiencia de colegas que disponen de buenas prácticas para compartir, orientar y apoyar.",
+      "La categoría de comunidades profesionales virtuales, donde docentes de todo el mundo comparten materiales en repositorios digitales abiertos.",
+      "La categoría de evaluación institucional colaborativa, donde directivos y docentes diseñan conjuntamente instrumentos de evaluación del aprendizaje."
+    ],
+    correcta: 0,
+    feedback: "La primera categoría del trabajo colaborativo entre docentes, según Calvo (2013), es aquella centrada en el trabajo con el otro: un docente se apoya en la experiencia de colegas que disponen de buenas prácticas para compartir, orientar y apoyar, como ocurre en programas de inserción a la docencia entre profesores expertos y noveles."
+  },
+  // ── 29 (correcta: B) ──
+  {
+    tipo: "Completamiento",
+    texto: "La transdisciplinariedad es una oportunidad para hacer del currículum una construcción social en el aula-comunidad; sus contenidos estarán constituidos por los diversos temas que se derivan del proceso de…",
+    opciones: [
+      "…evaluación sumativa diseñada por las autoridades educativas para medir el desempeño de los estudiantes al final del ciclo escolar.",
+      "…problematización de la realidad, donde el docente incluirá las nociones curriculares que los estudiantes necesitan para resolverlos (Pérez Luna et al., 2013).",
+      "…planeación didáctica individual del docente, quien selecciona los contenidos más relevantes del programa oficial de su asignatura."
+    ],
+    correcta: 1,
+    feedback: "Según Pérez Luna et al. (2013), la transdisciplinariedad como construcción social del currículum implica que sus contenidos estarán constituidos por los diversos temas que se derivan del proceso de problematización de la realidad y el docente incluirá las nociones curriculares que requieren los estudiantes para resolverlos."
+  },
+  // ── 30 (correcta: C) ──
+  {
+    tipo: "Cuestionamiento directo",
+    texto: "En el Curso-Taller 1, la actividad colaborativa final de la Etapa 5 tiene como propósito que los docentes:",
+    opciones: [
+      "Diseñen individualmente una estrategia de enseñanza transdisciplinar y la presenten ante el personal directivo para su aprobación.",
+      "Evalúen el desempeño de sus colegas durante el curso-taller y redacten un informe con recomendaciones para la mejora institucional.",
+      "Lleguen grupalmente a acuerdos sobre lo aprendido en el primer curso-taller, compartiendo posibilidades y dificultades para implementar los enfoques revisados a corto plazo en su plantel."
+    ],
+    correcta: 2,
+    feedback: "La Etapa 5 (Estableciendo acuerdos) consiste en que grupalmente los docentes lleguen a acuerdos sobre lo aprendido, compartiendo puntos de vista y posibilidades de experimentar o poner en práctica los enfoques revisados a partir de las reflexiones desarrolladas en el curso-taller."
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════════════════════
+let currentQ = 0;
+let correct = 0;
+let wrong = 0;
+let answered = false;
+let studentName = '';
+
+// ═══════════════════════════════════════════════════════════════
+// TAB NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function showTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// START QUIZ
+// ═══════════════════════════════════════════════════════════════
+function startQuiz() {
+  const nameInput = document.getElementById('studentName').value.trim();
+  if (!nameInput) {
+    document.getElementById('studentName').style.borderColor = '#e74c3c';
+    document.getElementById('studentName').placeholder = '⚠ Por favor escribe tu nombre...';
+    return;
+  }
+  studentName = nameInput;
+  currentQ = 0; correct = 0; wrong = 0;
+  document.getElementById('displayName').textContent = studentName;
+
+  // switch tab
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-simulador').classList.add('active');
+  document.querySelectorAll('.tab-btn')[1].classList.add('active');
+
+  renderQuestion();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER QUESTION
+// ═══════════════════════════════════════════════════════════════
+function renderQuestion() {
+  answered = false;
+  const q = questions[currentQ];
+  const card = document.getElementById('questionCard');
+  card.classList.add('fade-out');
+
+  setTimeout(() => {
+    document.getElementById('qNum').textContent = currentQ + 1;
+    document.getElementById('qTypeBadge').textContent = q.tipo;
+    document.getElementById('qNumberLabel').textContent = `Pregunta ${currentQ + 1} de 30`;
+    document.getElementById('qText').textContent = q.texto;
+
+    const progress = ((currentQ + 1) / 30) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+
+    const fb = document.getElementById('feedbackBox');
+    fb.style.display = 'none';
+    fb.className = 'feedback-box';
+
+    const btnNext = document.getElementById('btnNext');
+    btnNext.style.display = 'none';
+
+    const list = document.getElementById('optionsList');
+    list.innerHTML = '';
+    const letters = ['A', 'B', 'C'];
+    q.opciones.forEach((opt, i) => {
+      const li = document.createElement('li');
+      li.className = 'option-item';
+      li.innerHTML = `<span class="opt-letter">${letters[i]}</span><span class="opt-text">${opt}</span>`;
+      li.onclick = () => selectAnswer(i, li);
+      list.appendChild(li);
+    });
+
+    card.classList.remove('fade-out');
+  }, 280);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SELECT ANSWER
+// ═══════════════════════════════════════════════════════════════
+function selectAnswer(idx, el) {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[currentQ];
+  const items = document.querySelectorAll('.option-item');
+  items.forEach(i => i.classList.add('disabled'));
+
+  const fb = document.getElementById('feedbackBox');
+  const btnNext = document.getElementById('btnNext');
+
+  if (idx === q.correcta) {
+    el.classList.add('correct');
+    correct++;
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = `<strong>✅ ¡Respuesta correcta!</strong>${q.feedback}`;
+  } else {
+    el.classList.add('wrong');
+    wrong++;
+    // Highlight correct
+    items[q.correcta].classList.add('show-correct');
+    fb.className = 'feedback-box wrong';
+    fb.innerHTML = `<strong>❌ Respuesta incorrecta.</strong>${q.feedback}`;
+  }
+
+  fb.style.display = 'block';
+  btnNext.style.display = 'inline-block';
+  btnNext.textContent = currentQ < 29 ? 'Siguiente pregunta →' : 'Ver resultados →';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NEXT QUESTION
+// ═══════════════════════════════════════════════════════════════
+function nextQuestion() {
+  if (currentQ < 29) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SHOW RESULTS
+// ═══════════════════════════════════════════════════════════════
+function showResults() {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-resultados').classList.add('active');
+  document.querySelectorAll('.tab-btn')[2].classList.add('active');
+
+  const pct = Math.round((correct / 30) * 100);
+
+  document.getElementById('resultsName').textContent = studentName;
+  document.getElementById('resCorrect').textContent = correct;
+  document.getElementById('resWrong').textContent = wrong;
+  document.getElementById('scorePct').textContent = pct + '%';
+
+  const circle = document.getElementById('scoreCircle');
+  circle.style.setProperty('--pct', pct);
+
+  // Motivational message
+  let msg = '';
+  if (pct >= 90) {
+    msg = '🏆 ¡Excelente desempeño! Dominas los conceptos fundamentales del Curso-Taller 1. Tu comprensión de la disciplinariedad, el trabajo colaborativo y la transdisciplinariedad es sobresaliente.';
+  } else if (pct >= 75) {
+    msg = '🌟 ¡Muy buen trabajo! Tienes una sólida comprensión de los temas. Repasa las preguntas donde cometiste errores para fortalecer aún más tu aprendizaje.';
+  } else if (pct >= 60) {
+    msg = '💪 Buen esfuerzo. Estás en camino. Revisa la Guía de Estudio, especialmente los conceptos de interdisciplinariedad y trabajo colaborativo, y vuelve a intentarlo.';
+  } else {
+    msg = '📚 ¡Sigue adelante! Todo aprendizaje requiere práctica. Consulta la Guía de Estudio disponible en este simulador y vuelve a intentarlo. ¡Tú puedes!';
+  }
+
+  document.getElementById('motivationalMsg').textContent = msg;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESTART
+// ═══════════════════════════════════════════════════════════════
+function restartQuiz() {
+  currentQ = 0; correct = 0; wrong = 0;
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-inicio').classList.add('active');
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+  document.getElementById('studentName').value = '';
+}
+</script>
+</body>
+</html>
